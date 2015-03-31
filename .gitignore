@@ -1,0 +1,8 @@
+*.egg-info/
+*.pyc
+*.sublime-workspace
+.cache/
+.tox/
+/build/
+/dist/
+__pycache__/

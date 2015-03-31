@@ -1,0 +1,8 @@
+include CHANGELOG
+include README.rst
+include setup.py
+include tox.ini
+include LICENSE
+include test_flake8.py
+graft doc
+graft test_flake8.py
