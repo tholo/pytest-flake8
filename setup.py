@@ -23,6 +23,7 @@ setup(
     license="BSD License",
     author='Thorsten Lockert',
     author_email='tholo@sigmasoft.com',
+    url='https://github.com/tholo/pytest-flake8',
     py_modules=[
         'pytest_flake8',
     ],
