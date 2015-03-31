@@ -13,8 +13,13 @@ After installing it, when you run tests with the option::
     py.test --flake8
 
 every file ending in ``.py`` will be discovered and checked with
-flake8. Note that if optional flake8 plugins are installed, those
-will also be used.
+flake8.
+
+.. note::
+
+    If optional flake8 plugins are installed, those will
+    be used automatically. No provisions have been made for
+    configuring these via py.test.
 
 .. warning::
 
