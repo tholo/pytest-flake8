@@ -1,12 +1,15 @@
 """py.test plugin to test with flake8."""
 
-import re
-import py
-import pytest
 import os
+import re
+
 from flake8.engine import get_style_guide
 
-__version__ = '0.1'
+import py
+
+import pytest
+
+__version__ = '0.2'
 
 HISTKEY = "flake8/mtimes"
 
@@ -22,6 +25,9 @@ def pytest_addoption(parser):
         help="each line specifies a glob pattern and whitespace "
              "separated FLAKE8 errors or warnings which will be ignored, "
              "example: *.py W293")
+    parser.addini(
+        "flake8-max-line-length",
+        help="maximum line length")
 
 
 def pytest_sessionstart(session):
@@ -29,6 +35,7 @@ def pytest_sessionstart(session):
     config = session.config
     if config.option.flake8:
         config._flake8ignore = Ignorer(config.getini("flake8-ignore"))
+        config._flake8maxlen = config.getini("flake8-max-line-length")
         config._flake8mtimes = config.cache.get(HISTKEY, {})
 
 
@@ -38,7 +45,7 @@ def pytest_collect_file(path, parent):
     if config.option.flake8 and path.ext == '.py':
         flake8ignore = config._flake8ignore(path)
         if flake8ignore is not None:
-            return Flake8Item(path, parent, flake8ignore)
+            return Flake8Item(path, parent, flake8ignore, config._flake8maxlen)
 
 
 def pytest_sessionfinish(session):
@@ -49,16 +56,16 @@ def pytest_sessionfinish(session):
 
 
 class Flake8Error(Exception):
-
     """ indicates an error during flake8 checks. """
 
 
 class Flake8Item(pytest.Item, pytest.File):
 
-    def __init__(self, path, parent, flake8ignore):
+    def __init__(self, path, parent, flake8ignore, maxlength):
         super(Flake8Item, self).__init__(path, parent)
         self.add_marker("flake8")
         self.flake8ignore = flake8ignore
+        self.maxlength = maxlength
 
     def setup(self):
         flake8mtimes = self.config._flake8mtimes
@@ -70,7 +77,7 @@ class Flake8Item(pytest.Item, pytest.File):
     def runtest(self):
         call = py.io.StdCapture.call
         found_errors, out, err = call(
-            check_file, self.fspath, self.flake8ignore)
+            check_file, self.fspath, self.flake8ignore, self.maxlength)
         if found_errors:
             raise Flake8Error(out, err)
         # update mtime only if test passed
@@ -121,9 +128,13 @@ class Ignorer:
         return l
 
 
-def check_file(path, flake8ignore):
+def check_file(path, flake8ignore, maxlength):
     """Run flake8 over a single file, and return the number of failures."""
-    flake8_style = get_style_guide(parse_argv=False)
+    if maxlength:
+        flake8_style = get_style_guide(
+            parse_argv=False, paths=['--max-line-length', maxlength])
+    else:
+        flake8_style = get_style_guide(parse_argv=False)
     options = flake8_style.options
 
     if options.install_hook:
