@@ -30,9 +30,8 @@ def pytest_addoption(parser):
         help="maximum line length")
 
 
-def pytest_sessionstart(session):
+def pytest_configure(config):
     """Start a new session."""
-    config = session.config
     if config.option.flake8:
         config._flake8ignore = Ignorer(config.getini("flake8-ignore"))
         config._flake8maxlen = config.getini("flake8-max-line-length")
@@ -48,9 +47,8 @@ def pytest_collect_file(path, parent):
             return Flake8Item(path, parent, flake8ignore, config._flake8maxlen)
 
 
-def pytest_sessionfinish(session):
+def pytest_unconfigure(config):
     """Flush cache at end of run."""
-    config = session.config
     if hasattr(config, "_flake8mtimes"):
         config.cache.set(HISTKEY, config._flake8mtimes)
 
