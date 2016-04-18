@@ -1,3 +1,10 @@
+0.3
+---
+
+- Use integrated pytest cache instead of separate pytest-cache
+  module (which is now integrated)
+- Use documented hooks for start and end of a test run
+
 0.2
 ---
 
