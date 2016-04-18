@@ -37,6 +37,5 @@ setup(
     install_requires=[
         'flake8>=2.5',
         'pytest>=2.8',
-        'pytest-cache',
     ],
 )
