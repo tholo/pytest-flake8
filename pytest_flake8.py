@@ -69,7 +69,7 @@ class Flake8Item(pytest.Item, pytest.File):
         flake8mtimes = self.config._flake8mtimes
         self._flake8mtime = self.fspath.mtime()
         old = flake8mtimes.get(str(self.fspath), (0, []))
-        if old == (self._flake8mtime, self.flake8ignore):
+        if old == [self._flake8mtime, self.flake8ignore]:
             pytest.skip("file(s) previously passed FLAKE8 checks")
 
     def runtest(self):
