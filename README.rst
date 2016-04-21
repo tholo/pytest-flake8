@@ -41,8 +41,8 @@ or ``tox.ini`` file like this::
     [pytest]
     flake8-max-line-length = 99
 
-Note that the default will be what naturally comes with flake8_
-(which it turn gets its default from pep8_).
+Note that the default will be what naturally comes with `flake8`_
+(which it turn gets its default from `pep8`_).
 
 You may configure flake8-checking options for your project
 by adding an ``flake8-ignore`` entry to your ``setup.cfg``
@@ -101,3 +101,6 @@ The repository of this plugin is at https://github.com/tholo/pytest-flake8
 For more info on py.test see http://pytest.org
 
 The code is partially based on Ronny Pfannschmidt's pytest-codecheckers plugin.
+
+.. _`flake8`: https://pypi.python.org/pypi/flake8
+.. _`pep8`: https://pypi.python.org/pypi/pep8
