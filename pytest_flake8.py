@@ -28,6 +28,9 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-max-line-length",
         help="maximum line length")
+    parser.addini(
+        "flake8-extensions", type="args", default=[".py"],
+        help="a list of file extensions, for example: .py .pyx")
 
 
 def pytest_configure(config):
@@ -35,13 +38,14 @@ def pytest_configure(config):
     if config.option.flake8:
         config._flake8ignore = Ignorer(config.getini("flake8-ignore"))
         config._flake8maxlen = config.getini("flake8-max-line-length")
+        config._flake8exts = config.getini("flake8-extensions")
         config._flake8mtimes = config.cache.get(HISTKEY, {})
 
 
 def pytest_collect_file(path, parent):
     """Filter files down to which ones should be checked."""
     config = parent.config
-    if config.option.flake8 and path.ext == '.py':
+    if config.option.flake8 and path.ext in config._flake8exts:
         flake8ignore = config._flake8ignore(path)
         if flake8ignore is not None:
             return Flake8Item(path, parent, flake8ignore, config._flake8maxlen)

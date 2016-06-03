@@ -87,6 +87,22 @@ class TestIgnores:
         ])
 
 
+def test_extensions(testdir):
+    testdir.makeini("""
+        [pytest]
+        flake8-extensions = .py .pyx
+    """)
+    testdir.makefile(".pyx", """
+        @cfunc
+        def f():
+            pass
+    """)
+    result = testdir.runpytest("--flake8")
+    result.stdout.fnmatch_lines([
+        "*collected 1*",
+    ])
+
+
 def test_ok_verbose(testdir):
     p = testdir.makepyfile("""
         class AClass:
