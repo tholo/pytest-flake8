@@ -35,7 +35,7 @@ setup(
         'pytest11': ['flake8 = pytest_flake8'],
     },
     install_requires=[
-        'flake8>=2.5',
+        'flake8>=2.5,<3.0.0',
         'pytest>=2.8',
     ],
 )
