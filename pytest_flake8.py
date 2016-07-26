@@ -3,13 +3,13 @@
 import os
 import re
 
-from flake8.engine import get_style_guide
+from flake8.main import application
 
 import py
 
 import pytest
 
-__version__ = '0.5'
+__version__ = '0.6'
 
 HISTKEY = "flake8/mtimes"
 
@@ -132,15 +132,22 @@ class Ignorer:
 
 def check_file(path, flake8ignore, maxlength):
     """Run flake8 over a single file, and return the number of failures."""
+    args = []
     if maxlength:
-        flake8_style = get_style_guide(
-            parse_argv=False, paths=['--max-line-length', maxlength])
-    else:
-        flake8_style = get_style_guide(parse_argv=False)
-    options = flake8_style.options
-
-    if options.install_hook:
-        from flake8.hooks import install_hook
-        install_hook()
-
-    return flake8_style.input_file(str(path), expected=flake8ignore)
+        args = ['--max-line-length', maxlength]
+    app = application.Application()
+    app.find_plugins()
+    app.register_plugin_options()
+    app.parse_configuration_and_cli(args)
+    app.options.ignore = flake8ignore
+    app.make_formatter()  # fix this
+    app.make_notifier()
+    app.make_guide()
+    app.make_file_checker_manager()
+    app.run_checks([str(path)])
+    app.formatter.start()
+    app.report_errors()
+    # app.report_statistics()
+    # app.report_benchmarks()
+    app.formatter.stop()
+    return app.result_count
