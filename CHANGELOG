@@ -1,3 +1,9 @@
+0.7
+---
+
+- Added new options "flake8-max-complexity", "flake8-show-source"
+  and "flake8-statistics"
+
 0.6
 ---
 
