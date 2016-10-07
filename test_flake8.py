@@ -18,7 +18,8 @@ class TestIgnores:
 
     """Test ignores."""
 
-    def pytest_funcarg__example(self, request):
+    @pytest.fixture
+    def example(self, request):
         """Create a test file."""
         testdir = request.getfuncargvalue("testdir")
         p = testdir.makepyfile("")
