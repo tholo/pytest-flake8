@@ -60,9 +60,14 @@ def pytest_collect_file(path, parent):
     if config.option.flake8 and path.ext in config._flake8exts:
         flake8ignore = config._flake8ignore(path)
         if flake8ignore is not None:
-            return Flake8Item(path, parent, flake8ignore=flake8ignore, maxlength=config._flake8maxlen,
-                              maxcomplexity=config._flake8maxcomplexity, showshource=config._flake8showshource,
-                              statistics=config._flake8statistics)
+            return Flake8Item(
+                path,
+                parent,
+                flake8ignore=flake8ignore,
+                maxlength=config._flake8maxlen,
+                maxcomplexity=config._flake8maxcomplexity,
+                showshource=config._flake8showshource,
+                statistics=config._flake8statistics)
 
 
 def pytest_unconfigure(config):
@@ -77,7 +82,8 @@ class Flake8Error(Exception):
 
 class Flake8Item(pytest.Item, pytest.File):
 
-    def __init__(self, path, parent, flake8ignore, maxlength, maxcomplexity, showshource, statistics):
+    def __init__(self, path, parent, flake8ignore, maxlength,
+                 maxcomplexity, showshource, statistics):
         super(Flake8Item, self).__init__(path, parent)
         self.add_marker("flake8")
         self.flake8ignore = flake8ignore
@@ -96,7 +102,12 @@ class Flake8Item(pytest.Item, pytest.File):
     def runtest(self):
         call = py.io.StdCapture.call
         found_errors, out, err = call(
-            check_file, self.fspath, self.flake8ignore, self.maxlength, self.maxcomplexity, self.showshource,
+            check_file,
+            self.fspath,
+            self.flake8ignore,
+            self.maxlength,
+            self.maxcomplexity,
+            self.showshource,
             self.statistics)
         if found_errors:
             raise Flake8Error(out, err)
@@ -148,7 +159,8 @@ class Ignorer:
         return l
 
 
-def check_file(path, flake8ignore, maxlength, maxcomplexity, showshource, statistics):
+def check_file(path, flake8ignore, maxlength, maxcomplexity,
+               showshource, statistics):
     """Run flake8 over a single file, and return the number of failures."""
     args = []
     if maxlength:
