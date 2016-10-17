@@ -1,3 +1,9 @@
+0.8
+---
+
+- Allow running with not cacheprovider
+- Modernize use of fixtures in tests
+
 0.7
 ---
 

@@ -51,7 +51,8 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
-        config._flake8mtimes = config.cache.get(HISTKEY, {})
+        if hasattr(config, 'cache'):
+            config._flake8mtimes = config.cache.get(HISTKEY, {})
 
 
 def pytest_collect_file(path, parent):
@@ -93,7 +94,10 @@ class Flake8Item(pytest.Item, pytest.File):
         self.statistics = statistics
 
     def setup(self):
-        flake8mtimes = self.config._flake8mtimes
+        if hasattr(self.config, "_flake8mtimes"):
+            flake8mtimes = self.config._flake8mtimes
+        else:
+            flake8mtimes = {}
         self._flake8mtime = self.fspath.mtime()
         old = flake8mtimes.get(str(self.fspath), (0, []))
         if old == [self._flake8mtime, self.flake8ignore]:
@@ -113,8 +117,9 @@ class Flake8Item(pytest.Item, pytest.File):
             raise Flake8Error(out, err)
         # update mtime only if test passed
         # otherwise failures would not be re-run next time
-        self.config._flake8mtimes[str(self.fspath)] = (self._flake8mtime,
-                                                       self.flake8ignore)
+        if hasattr(self.config, "_flake8mtimes"):
+            self.config._flake8mtimes[str(self.fspath)] = (self._flake8mtime,
+                                                           self.flake8ignore)
 
     def repr_failure(self, excinfo):
         if excinfo.errisinstance(Flake8Error):
