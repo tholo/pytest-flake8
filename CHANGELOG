@@ -1,7 +1,7 @@
-0.8
----
+0.8, 0.8.1
+----------
 
-- Allow running with not cacheprovider
+- Allow running with no cacheprovider
 - Modernize use of fixtures in tests
 
 0.7
