@@ -51,6 +51,7 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
+        config.addinivalue_line('markers', "flake8: Tests which run flake8.")
         if hasattr(config, 'cache'):
             config._flake8mtimes = config.cache.get(HISTKEY, {})
 
