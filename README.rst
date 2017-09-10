@@ -93,6 +93,11 @@ failure and it will ignore doc/conf.py alltogether::
 
 Note that doc/conf.py was not considered or imported.
 
+Unused ignores can be found by using the ``--flake8-log-ignore-usage`` option
+with a path as argument.  If the option is set, a log will be written to that
+file, where each line contains, in that order, the glob, the ignore code, and
+the number of messages that were suppressed by that entry.
+
 Notes
 -----
 

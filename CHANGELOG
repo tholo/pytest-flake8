@@ -1,3 +1,8 @@
+0.8.2
+-----
+
+- Added "--flake8-log-ignore-usage" option
+
 0.8, 0.8.1
 ----------
 
