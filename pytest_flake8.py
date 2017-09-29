@@ -1,5 +1,6 @@
 """py.test plugin to test with flake8."""
 
+import hashlib
 import os
 import re
 
@@ -11,7 +12,8 @@ import pytest
 
 __version__ = '0.6'
 
-HISTKEY = "flake8/mtimes"
+HISTKEY_MTIMES = "flake8/mtimes"
+HISTKEY_HASH = "flake8/hash"
 
 
 def pytest_addoption(parser):
@@ -40,6 +42,9 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-extensions", type="args", default=[".py"],
         help="a list of file extensions, for example: .py .pyx")
+    parser.addini(
+        "flake8-cache", default='mtimes',
+        help="File caching algorithm. Options: mtimes hash")
 
 
 def pytest_configure(config):
@@ -51,8 +56,14 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
+        config._flake8cachealgorithm = config.getini('flake8-cache')
         if hasattr(config, 'cache'):
-            config._flake8mtimes = config.cache.get(HISTKEY, {})
+            if config._flake8cachealgorithm == 'hash':
+                histkey = HISTKEY_HASH
+            else:
+                histkey = HISTKEY_MTIMES
+            config._flake8cache = config.cache.get(histkey, {})
+            config._flake8histkey = histkey
 
 
 def pytest_collect_file(path, parent):
@@ -73,8 +84,8 @@ def pytest_collect_file(path, parent):
 
 def pytest_unconfigure(config):
     """Flush cache at end of run."""
-    if hasattr(config, "_flake8mtimes"):
-        config.cache.set(HISTKEY, config._flake8mtimes)
+    if hasattr(config, "_flake8cache"):
+        config.cache.set(config._flake8histkey, config._flake8cache)
 
 
 class Flake8Error(Exception):
@@ -92,16 +103,29 @@ class Flake8Item(pytest.Item, pytest.File):
         self.maxcomplexity = maxcomplexity
         self.showshource = showshource
         self.statistics = statistics
+        self._cachevalue = None
+
+    @property
+    def cachevalue(self):
+        if self._cachevalue is None:
+            config = self.parent.config
+            if config._flake8cachealgorithm == 'hash':
+                hasher = hashlib.md5()
+
+                with open(str(self.fspath), "rb") as f:
+                    hasher.update(f.read())
+
+                self._cachevalue = hasher.hexdigest()
+            else:
+                self._cachevalue = self._flake8mtime = self.fspath.mtime()
+        return self._cachevalue
 
     def setup(self):
-        if hasattr(self.config, "_flake8mtimes"):
-            flake8mtimes = self.config._flake8mtimes
-        else:
-            flake8mtimes = {}
-        self._flake8mtime = self.fspath.mtime()
-        old = flake8mtimes.get(str(self.fspath), (0, []))
-        if old == [self._flake8mtime, self.flake8ignore]:
-            pytest.skip("file(s) previously passed FLAKE8 checks")
+        if hasattr(self.config, "_flake8cache"):
+            flake8cache = self.config._flake8cache
+            old = flake8cache.get(str(self.fspath), (0, []))
+            if old == [self.cachevalue, self.flake8ignore]:
+                pytest.skip("file(s) previously passed FLAKE8 checks")
 
     def runtest(self):
         call = py.io.StdCapture.call
@@ -115,11 +139,11 @@ class Flake8Item(pytest.Item, pytest.File):
             self.statistics)
         if found_errors:
             raise Flake8Error(out, err)
-        # update mtime only if test passed
+        # update cache only if test passed
         # otherwise failures would not be re-run next time
-        if hasattr(self.config, "_flake8mtimes"):
-            self.config._flake8mtimes[str(self.fspath)] = (self._flake8mtime,
-                                                           self.flake8ignore)
+        if hasattr(self.config, "_flake8cache"):
+            self.config._flake8cache[str(self.fspath)] = (self.cachevalue,
+                                                          self.flake8ignore)
 
     def repr_failure(self, excinfo):
         if excinfo.errisinstance(Flake8Error):
