@@ -177,6 +177,8 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
     if statistics:
         args += ['--statistics']
     app = application.Application()
+    app.parse_preliminary_options_and_args(args)
+    app.make_config_finder()
     app.find_plugins()
     app.register_plugin_options()
     app.parse_configuration_and_cli(args)
