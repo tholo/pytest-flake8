@@ -1,3 +1,12 @@
+0.9
+---
+
+- Extend options already loaded instead of replacing them; from
+  mforbes@github
+- Correct some issues preventing proper operation with flake8 3.5.0;
+  from jezdez@github
+- Register pytest marker for flake8; from alex-dr@github
+
 0.8, 0.8.1
 ----------
 

@@ -156,7 +156,7 @@ class Ignorer:
             ignores.append((glob, ign))
 
     def __call__(self, path):
-        l = []
+        l = []  # noqa: E741
         for (glob, ignlist) in self.ignores:
             if not glob or path.fnmatch(glob):
                 if ignlist is None:
