@@ -1,3 +1,9 @@
+0.9.1
+-----
+
+- Do continuous integration with Travis; from alex-dr@github
+- Declare compatibility with Python 3.6
+
 0.9
 ---
 
