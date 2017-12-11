@@ -46,7 +46,7 @@ class TestIgnores:
         testdir.tmpdir.ensure("xy.py")
         testdir.tmpdir.ensure("tests/hello.py")
         result = testdir.runpytest("--flake8", "-s")
-        assert result.ret == 0
+        result.assert_outcomes(passed=1)
         result.stdout.fnmatch_lines([
             "*collected 1*",
             "*xy.py .*",
@@ -60,7 +60,7 @@ class TestIgnores:
             "*W293*",
             "*W292*",
         ])
-        assert result.ret != 0
+        result.assert_outcomes(failed=1)
 
     def test_mtime_caching(self, testdir, example):
         testdir.tmpdir.ensure("hello.py")
@@ -69,23 +69,20 @@ class TestIgnores:
             # "*plugins*flake8*",
             "*W293*",
             "*W292*",
-            "*1 failed*",
         ])
-        assert result.ret != 0
+        result.assert_outcomes(passed=1, failed=1)
         result = testdir.runpytest("--flake8", )
         result.stdout.fnmatch_lines([
             "*W293*",
             "*W292*",
-            "*1 failed*",
         ])
+        result.assert_outcomes(skipped=1, failed=1)
         testdir.makeini("""
             [pytest]
             flake8-ignore = *.py W293 W292
         """)
         result = testdir.runpytest("--flake8", )
-        result.stdout.fnmatch_lines([
-            "*2 passed*",
-        ])
+        result.assert_outcomes(passed=2)
 
 
 def test_extensions(testdir):
@@ -102,6 +99,7 @@ def test_extensions(testdir):
     result.stdout.fnmatch_lines([
         "*collected 1*",
     ])
+    result.assert_outcomes(failed=1)
 
 
 def test_ok_verbose(testdir):
@@ -114,7 +112,7 @@ def test_ok_verbose(testdir):
     result.stdout.fnmatch_lines([
         "*test_ok_verbose*",
     ])
-    assert result.ret == 0
+    result.assert_outcomes(passed=1)
 
 
 def test_keyword_match(testdir):
@@ -128,7 +126,7 @@ def test_keyword_match(testdir):
         "*E201*",
         "*1 failed*",
     ])
-    assert 'passed' not in result.stdout.str()
+    result.assert_outcomes(failed=1)
 
 
 @pytest.mark.xfail("sys.platform == 'win32'")
@@ -151,4 +149,4 @@ accent_map = {
 def test_strict(testdir):
     testdir.makepyfile("")
     result = testdir.runpytest("--strict", "--flake8")
-    assert result.ret == 0
+    result.assert_outcomes(passed=1)
