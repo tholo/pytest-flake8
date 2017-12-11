@@ -160,4 +160,5 @@ def test_junit_classname(testdir):
     junit = testdir.tmpdir.join("TEST.xml")
     with open(str(junit)) as j_file:
         j_text = j_file.read()
-    assert result.ret == 0 and 'classname=""' not in j_text
+    assert result.ret == 0
+    assert 'classname=""' not in j_text
