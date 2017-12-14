@@ -150,3 +150,13 @@ def test_strict(testdir):
     testdir.makepyfile("")
     result = testdir.runpytest("--strict", "--flake8")
     result.assert_outcomes(passed=1)
+
+
+def test_junit_classname(testdir):
+    testdir.makepyfile("")
+    result = testdir.runpytest("--flake8", "--junit-xml=TEST.xml")
+    junit = testdir.tmpdir.join("TEST.xml")
+    with open(str(junit)) as j_file:
+        j_text = j_file.read()
+    assert result.ret == 0
+    assert 'classname=""' not in j_text

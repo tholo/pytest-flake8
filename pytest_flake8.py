@@ -134,6 +134,9 @@ class Flake8Item(pytest.Item, pytest.File):
             ignores = ""
         return (self.fspath, -1, "FLAKE8-check%s" % ignores)
 
+    def _makeid(self):
+        return super(Flake8Item, self)._makeid() + "::FLAKE8"
+
 
 class Ignorer:
     def __init__(self, ignorelines, coderex=re.compile("[EW]\d\d\d")):
