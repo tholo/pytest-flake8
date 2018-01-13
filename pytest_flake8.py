@@ -1,5 +1,6 @@
 """py.test plugin to test with flake8."""
 
+import logging
 import os
 import re
 
@@ -180,6 +181,9 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
         args += ['--show-source']
     if statistics:
         args += ['--statistics']
+
+    logging.getLogger('flake8').setLevel(logging.WARN)
+
     app = application.Application()
     app.parse_preliminary_options_and_args(args)
     app.make_config_finder()
