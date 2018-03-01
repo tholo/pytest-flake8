@@ -51,6 +51,7 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
+        config.addinivalue_line('markers', "flake8: Tests which run flake8.")
         if hasattr(config, 'cache'):
             config._flake8mtimes = config.cache.get(HISTKEY, {})
 
@@ -133,6 +134,9 @@ class Flake8Item(pytest.Item, pytest.File):
             ignores = ""
         return (self.fspath, -1, "FLAKE8-check%s" % ignores)
 
+    def _makeid(self):
+        return super(Flake8Item, self)._makeid() + "::FLAKE8"
+
 
 class Ignorer:
     def __init__(self, ignorelines, coderex=re.compile("[EW]\d\d\d")):
@@ -155,7 +159,7 @@ class Ignorer:
             ignores.append((glob, ign))
 
     def __call__(self, path):
-        l = []
+        l = []  # noqa: E741
         for (glob, ignlist) in self.ignores:
             if not glob or path.fnmatch(glob):
                 if ignlist is None:
@@ -177,6 +181,8 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
     if statistics:
         args += ['--statistics']
     app = application.Application()
+    app.parse_preliminary_options_and_args(args)
+    app.make_config_finder()
     app.find_plugins()
     app.register_plugin_options()
     app.parse_configuration_and_cli(args)
