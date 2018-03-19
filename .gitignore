@@ -1,4 +1,5 @@
 *.egg-info/
+.pytest_cache/
 *.pyc
 *.sublime-workspace
 .cache/

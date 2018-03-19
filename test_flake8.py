@@ -174,7 +174,7 @@ accent_map = {
 @pytest.mark.xfail(reason="flake8 is not properly registered as a marker")
 def test_strict(testdir):
     testdir.makepyfile("")
-    result = testdir.runpytest("--strict", "--flake8")
+    result = testdir.runpytest("--strict", "--mflake8")
     result.assert_outcomes(passed=1)
 
 
