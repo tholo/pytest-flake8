@@ -1,3 +1,10 @@
+1.0.0
+-----
+
+- Honor ignore settings in default flake8 config section; from
+  brianbruggeman@github
+- Improve junit XML output; from Struan Judd
+
 0.9.1
 -----
 
