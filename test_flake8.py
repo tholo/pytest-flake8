@@ -114,6 +114,37 @@ class TestIgnores:
             "*2 passed*",
         ])
 
+    def test_hash_caching_sha1(self, testdir, example):
+        testdir.tmpdir.ensure("hello.py")
+        testdir.makeini("""
+            [pytest]
+            flake8-cache = hash
+            flake8-hash-algo = sha1
+        """)
+        result = testdir.runpytest("--flake8", )
+        result.stdout.fnmatch_lines([
+            # "*plugins*flake8*",
+            "*W293*",
+            "*W292*",
+            "*1 failed*",
+        ])
+        assert result.ret != 0
+        result = testdir.runpytest("--flake8", )
+        result.stdout.fnmatch_lines([
+            "*W293*",
+            "*W292*",
+            "*1 failed*",
+        ])
+        testdir.makeini("""
+            [pytest]
+            flake8-ignore = *.py W293 W292
+            flake8-cache = hash
+        """)
+        result = testdir.runpytest("--flake8", )
+        result.stdout.fnmatch_lines([
+            "*2 passed*",
+        ])
+
 
 def test_extensions(testdir):
     testdir.makeini("""

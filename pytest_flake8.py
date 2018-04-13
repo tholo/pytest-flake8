@@ -45,6 +45,9 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-cache", default='mtimes',
         help="File caching algorithm. Options: mtimes hash")
+    parser.addini(
+        "flake8-hash-algo", default='md5',
+        help="Hashing algorithm to use from hashlib")
 
 
 def pytest_configure(config):
@@ -58,10 +61,11 @@ def pytest_configure(config):
         config._flake8exts = config.getini("flake8-extensions")
         config._flake8cachealgorithm = config.getini('flake8-cache')
         config.addinivalue_line('markers', "flake8: Tests which run flake8.")
-    
+
         if hasattr(config, 'cache'):
             if config._flake8cachealgorithm == 'hash':
                 histkey = HISTKEY_HASH
+                config._flake8hashalgo = config.getini('flake8-hash-algo')
             else:
                 histkey = HISTKEY_MTIMES
             config._flake8cache = config.cache.get(histkey, {})
@@ -112,7 +116,7 @@ class Flake8Item(pytest.Item, pytest.File):
         if self._cachevalue is None:
             config = self.parent.config
             if config._flake8cachealgorithm == 'hash':
-                hasher = hashlib.md5()
+                hasher = hashlib.new(config._flake8hashalgo)
 
                 with open(str(self.fspath), "rb") as f:
                     hasher.update(f.read())
