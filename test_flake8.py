@@ -50,7 +50,7 @@ class TestIgnores:
         testdir.tmpdir.ensure("xy.py")
         testdir.tmpdir.ensure("tests/hello.py")
         result = testdir.runpytest("--flake8", "-s")
-        assert result.ret == 0
+        result.assert_outcomes(passed=2)
         result.stdout.fnmatch_lines([
             "*collected 2*",
             "*xy.py .*",
@@ -184,5 +184,5 @@ def test_junit_classname(testdir):
     junit = testdir.tmpdir.join("TEST.xml")
     with open(str(junit)) as j_file:
         j_text = j_file.read()
-    assert result.ret == 0
+    result.assert_outcomes(passed=1)
     assert 'classname=""' not in j_text

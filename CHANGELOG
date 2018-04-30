@@ -1,3 +1,8 @@
+1.0.1
+-----
+
+- Correct junit XML output for pytest 3.5.x
+
 1.0.0
 -----
 

@@ -87,6 +87,7 @@ class Flake8Item(pytest.Item, pytest.File):
     def __init__(self, path, parent, flake8ignore, maxlength,
                  maxcomplexity, showshource, statistics):
         super(Flake8Item, self).__init__(path, parent)
+        self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
         self.flake8ignore = flake8ignore
         self.maxlength = maxlength
@@ -133,9 +134,6 @@ class Flake8Item(pytest.Item, pytest.File):
         else:
             ignores = ""
         return (self.fspath, -1, "FLAKE8-check%s" % ignores)
-
-    def _makeid(self):
-        return super(Flake8Item, self)._makeid() + "::FLAKE8"
 
 
 class Ignorer:
