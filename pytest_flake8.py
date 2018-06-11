@@ -40,6 +40,9 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-extensions", type="args", default=[".py"],
         help="a list of file extensions, for example: .py .pyx")
+    parser.addini(
+        "flake8-extra-args", type="args",
+        help="extra arguments to be passed to the flake8 command")
 
 
 def pytest_configure(config):
@@ -51,6 +54,7 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
+        config._flake8extraargs = config.getini("flake8-extra-args")
         config.addinivalue_line('markers', "flake8: Tests which run flake8.")
         if hasattr(config, 'cache'):
             config._flake8mtimes = config.cache.get(HISTKEY, {})
@@ -65,6 +69,7 @@ def pytest_collect_file(path, parent):
             return Flake8Item(
                 path,
                 parent,
+                extraargs=config._flake8extraargs,
                 flake8ignore=flake8ignore,
                 maxlength=config._flake8maxlen,
                 maxcomplexity=config._flake8maxcomplexity,
@@ -84,11 +89,12 @@ class Flake8Error(Exception):
 
 class Flake8Item(pytest.Item, pytest.File):
 
-    def __init__(self, path, parent, flake8ignore, maxlength,
+    def __init__(self, path, parent, extraargs, flake8ignore, maxlength,
                  maxcomplexity, showshource, statistics):
         super(Flake8Item, self).__init__(path, parent)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
+        self.extraargs = extraargs
         self.flake8ignore = flake8ignore
         self.maxlength = maxlength
         self.maxcomplexity = maxcomplexity
@@ -110,6 +116,7 @@ class Flake8Item(pytest.Item, pytest.File):
         found_errors, out, err = call(
             check_file,
             self.fspath,
+            self.extraargs,
             self.flake8ignore,
             self.maxlength,
             self.maxcomplexity,
@@ -166,10 +173,12 @@ class Ignorer:
         return l
 
 
-def check_file(path, flake8ignore, maxlength, maxcomplexity,
+def check_file(path, extraargs, flake8ignore, maxlength, maxcomplexity,
                showshource, statistics):
     """Run flake8 over a single file, and return the number of failures."""
     args = []
+    if extraargs:
+        args += extraargs
     if maxlength:
         args += ['--max-line-length', maxlength]
     if maxcomplexity:
