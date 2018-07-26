@@ -137,7 +137,7 @@ class Flake8Item(pytest.Item, pytest.File):
 
 
 class Ignorer:
-    def __init__(self, ignorelines, coderex=re.compile("[EW]\d\d\d")):
+    def __init__(self, ignorelines, coderex=re.compile(r"[EW]\d\d\d")):
         self.ignores = ignores = []
         for line in ignorelines:
             i = line.find("#")
