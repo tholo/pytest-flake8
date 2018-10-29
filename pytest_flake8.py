@@ -178,6 +178,8 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
         args += ['--show-source']
     if statistics:
         args += ['--statistics']
+    # One file per flake8 call so limit flake8 to one job
+    args += ['--jobs', "1"]
     app = application.Application()
     app.parse_preliminary_options_and_args(args)
     app.make_config_finder()
