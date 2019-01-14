@@ -21,7 +21,7 @@ class TestIgnores:
     @pytest.fixture
     def example(self, request):
         """Create a test file."""
-        testdir = request.getfuncargvalue("testdir")
+        testdir = request.getfixturevalue("testdir")
         import sys
         print(testdir, file=sys.stderr)
         p = testdir.makepyfile("")
