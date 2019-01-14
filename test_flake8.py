@@ -102,8 +102,7 @@ class TestIgnores:
         result.assert_outcomes(skipped=1, failed=1)
         testdir.makeini("""
             [pytest]
-            markers = flake8
-            flake8-ignore = *.py W293 W292
+            flake8-ignore = *.py W293 W292 W391
         """)
         result = testdir.runpytest("--flake8", )
         result.assert_outcomes(passed=2)
