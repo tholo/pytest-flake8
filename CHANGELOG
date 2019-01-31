@@ -1,3 +1,10 @@
+1.0.4
+-----
+
+- Support flake8 3.7+ by checking existence of "app.make_notifier";
+  from jirikuncar@github
+- Correctly specify Python version for xdist
+
 1.0.3
 -----
 
