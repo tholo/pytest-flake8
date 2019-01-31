@@ -187,7 +187,9 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
     if flake8ignore:
         app.options.ignore = flake8ignore
     app.make_formatter()  # fix this
-    app.make_notifier()
+    if hasattr(app, 'make_notifier'):
+        # removed in flake8 3.7+
+        app.make_notifier()
     app.make_guide()
     app.make_file_checker_manager()
     app.run_checks([str(path)])
