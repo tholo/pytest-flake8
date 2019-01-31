@@ -1,3 +1,11 @@
+1.0.4
+-----
+
+- Support flake8 3.7+ by checking existence of "app.make_notifier";
+  from jirikuncar@github
+- More fixes for Travis CI -- properly specify Python versions, in
+  particular for pypy (and fix a typo)
+
 1.0.3
 -----
 
