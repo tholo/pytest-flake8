@@ -59,7 +59,7 @@ by adding a ``flake8-max-line-length`` option to your ``setup.cfg``
 or ``tox.ini`` file like this::
 
     # content of setup.cfg
-    [pytest]
+    [tool:pytest]
     flake8-max-line-length = 99
 
 Note that the default will be what naturally comes with `flake8`_
@@ -70,7 +70,7 @@ by adding an ``flake8-ignore`` entry to your ``setup.cfg``
 or ``tox.ini`` file like this::
 
     # content of setup.cfg
-    [pytest]
+    [tool:pytest]
     flake8-ignore = E201 E231
 
 This would globally prevent complaints about two whitespace issues.
@@ -86,7 +86,7 @@ some errors or warnings you can start a flake8-ignore line with
 a glob-pattern and a space-separated list of codes::
 
     # content of setup.cfg
-    [pytest]
+    [tool:pytest]
     flake8-ignore = 
         *.py E201
         doc/conf.py ALL
