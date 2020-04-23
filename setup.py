@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='pytest-flake8',
-    version='1.0.4',
+    version='1.0.5',
     description='pytest plugin to check FLAKE8 requirements',
     long_description=open("README.rst").read(),
     classifiers=[
