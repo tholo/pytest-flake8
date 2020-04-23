@@ -62,14 +62,23 @@ def pytest_collect_file(path, parent):
     if config.option.flake8 and path.ext in config._flake8exts:
         flake8ignore = config._flake8ignore(path)
         if flake8ignore is not None:
-            return Flake8Item(
-                path,
-                parent,
-                flake8ignore=flake8ignore,
-                maxlength=config._flake8maxlen,
-                maxcomplexity=config._flake8maxcomplexity,
-                showshource=config._flake8showshource,
-                statistics=config._flake8statistics)
+            if hasattr(Flake8Item, "from_parent"):
+                item = Flake8Item.from_parent(parent, fspath=path)
+                item.flake8ignore = flake8ignore
+                item.maxlength = config._flake8maxlen
+                item.maxcomplexity = config._flake8maxcomplexity
+                item.showshource = config._flake8showshource
+                item.statistics = config._flake8statistics
+                return item
+            else:
+                return Flake8Item(
+                    path,
+                    parent,
+                    flake8ignore=flake8ignore,
+                    maxlength=config._flake8maxlen,
+                    maxcomplexity=config._flake8maxcomplexity,
+                    showshource=config._flake8showshource,
+                    statistics=config._flake8statistics)
 
 
 def pytest_unconfigure(config):
