@@ -136,12 +136,12 @@ class Flake8Item(pytest.Item):
         return super(Flake8Item, self).repr_failure(excinfo)
 
     def reportinfo(self):
-        ignores = ""
+        ignores = []
         try:
             ignores = self.session.config._flake8_app.options.ignore
         except AttributeError:
             pass
-        return (self.fspath, -1, "FLAKE8-check, ignoring [{}]".format(ignores))
+        return (self.fspath, -1, "FLAKE8-check, ignoring {}".format(ignores))
 
 
 def run_one(path, flake8_app):

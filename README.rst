@@ -49,8 +49,8 @@ The repository of this plugin is at https://github.com/bobhy/pytest-flake8
 
 For more info on `pytest`_ see http://pytest.org
 
-The code is partially based on asdffsdf Version 1 implementation
-and  Ronny Pfannschmidt's `pytest-codecheckers`_ plugin.
+The code is based on Thorsten Lockert's V1 implementation 
+and Ronny Pfannschmidt's `pytest-codecheckers`_ plugin.
 
 .. _`pytest`: http://pytest.org
 .. _`flake8`: https://pypi.python.org/pypi/flake8
