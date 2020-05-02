@@ -38,8 +38,11 @@ flake8's configuration for excluding files and ignoring errors.
 
 .. note::
 
-    All configuration of flake8 and its plugins is done through [flake8] configuration files.
-    Note that these have different pattern matching rules than pytest.
+    All configuration of flake8 and its plugins is done through [flake8] configuration files,
+    except the --flake80exts, -statistics and -show-source options documented above.
+    Note that flake8 ignore is different from the deprecated --flake8-ignore and 
+    flake8 --per-file-ignores and --exclude options use different file matching syntax than pytest.
+    
 
 
 Notes

@@ -6,7 +6,7 @@ import logging
 
 from flake8.main import application
 
-__version__ = "2.0"
+__version__ = "2.0.0"
 
 HISTKEY = "flake8/mtimes"
 
