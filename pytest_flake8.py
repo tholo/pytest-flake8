@@ -1,17 +1,12 @@
 """py.test plugin to test with flake8."""
-
-import os
-import re
-
-from flake8.main import application
-
 import py
-
 import pytest
 import warnings
 import logging
 
-__version__ = '2.0'
+from flake8.main import application
+
+__version__ = "2.0"
 
 HISTKEY = "flake8/mtimes"
 
@@ -20,28 +15,31 @@ def pytest_addoption(parser):
     """Hook up additional options."""
     group = parser.getgroup("general")
     group.addoption(
-        '--flake8', action='store_true',
-        help="perform some flake8 sanity checks on .py files")
+        "--flake8",
+        action="store_true",
+        help="perform some flake8 sanity checks on .py files",
+    )
     parser.addini(
-        "flake8-ignore", type="linelist",
+        "flake8-ignore",
+        type="linelist",
         help="each line specifies a glob pattern and whitespace "
-             "separated FLAKE8 errors or warnings which will be ignored, "
-             "example: *.py W293")
+        "separated FLAKE8 errors or warnings which will be ignored, "
+        "example: *.py W293",
+    )
+    parser.addini("flake8-max-line-length", help="maximum line length")
+    parser.addini("flake8-max-complexity", help="McCabe complexity threshold")
     parser.addini(
-        "flake8-max-line-length",
-        help="maximum line length")
+        "flake8-show-source",
+        type="bool",
+        help="show the source generate each error or warning",
+    )
+    parser.addini("flake8-statistics", type="bool", help="count errors and warnings")
     parser.addini(
-        "flake8-max-complexity",
-        help="McCabe complexity threshold")
-    parser.addini(
-        "flake8-show-source", type="bool",
-        help="show the source generate each error or warning")
-    parser.addini(
-        "flake8-statistics", type="bool",
-        help="count errors and warnings")
-    parser.addini(
-        "flake8-extensions", type="args", default=[".py"],
-        help="a list of file extensions, for example: .py .pyx")
+        "flake8-extensions",
+        type="args",
+        default=[".py"],
+        help="a list of file extensions, for example: .py .pyx",
+    )
 
 
 def pytest_configure(config):
@@ -50,21 +48,23 @@ def pytest_configure(config):
         config._flake8showsource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8extensions = config.getini("flake8-extensions")
-        config.addinivalue_line('markers', "flake8: Tests which run flake8.")
+        config.addinivalue_line("markers", "flake8: Tests which run flake8.")
         deprec_kwds = ["ignore", "max-line-length", "max-complexity"]
         deprec_items = []
         for d in deprec_kwds:
-            if config.getini('flake8-' + d):
+            if config.getini("flake8-" + d):
                 deprec_items.append(d)
         if deprec_items:
-            warnings.warn("pytest-flake8 2.x: Deprecated pytest-flake8 config '{}', ignoring!"
+            warnings.warn(
+                "pytest-flake8 2.x: Deprecated pytest-flake8 config '{}', ignoring!"
                 " Use '{}' in flake8 config instead.".format(
-                    "', '".join(['flake8-' + i for i in deprec_items])
-                    , "', '".join(deprec_items)
-                ), DeprecationWarning
+                    "', '".join(["flake8-" + i for i in deprec_items]),
+                    "', '".join(deprec_items),
+                ),
+                DeprecationWarning,
             )
 
-        if hasattr(config, 'cache'):
+        if hasattr(config, "cache"):
             config._flake8mtimes = config.cache.get(HISTKEY, {})
 
 
@@ -81,11 +81,11 @@ def pytest_sessionfinish(session: pytest.Session, exitstatus: int):
 
 def pytest_collect_file(parent, path):
     """Filter files down to which ones should be checked.
-    Use pytest --flake8-extensions to accept extensions, 
+    Use pytest --flake8-extensions to accept extensions,
     but flake8 config [flake8] exclude= to skip files or directories"""
     if parent.config.option.flake8 and path.ext in (parent.config._flake8extensions):
         if parent.config._flake8_app.file_checker_manager.is_path_excluded(str(path)):
-            logging.debug('Skipping file {} per flake8 exclude list.')
+            logging.debug("Skipping file {} per flake8 exclude list.")
         else:
             return Flake8File.from_parent(parent, fspath=path)
 
@@ -102,6 +102,7 @@ class Flake8Error(Exception):
 
 class Flake8File(pytest.File):
     """Represents file, collect one flake8 test to run."""
+
     def collect(self):
         yield Flake8Item.from_parent(self, name="FLAKE8")
 
