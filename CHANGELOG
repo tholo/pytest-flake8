@@ -1,3 +1,8 @@
+1.0.6
+-----
+
+- Fix compatibility with flake8 >= 3.8, from @marc
+
 1.0.5
 -----
 
