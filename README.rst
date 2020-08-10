@@ -114,6 +114,16 @@ failure and it will ignore doc/conf.py alltogether::
 
 Note that doc/conf.py was not considered or imported.
 
+FAQs
+-----
+
+All the flake8 tests are skipping!
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This is by design.  Clean flake8 results are cached and, unless the file is modified, not tested again.
+
+You can run with ``pytest --cache-clear --flake8`` to override this.
+
 Notes
 -----
 
