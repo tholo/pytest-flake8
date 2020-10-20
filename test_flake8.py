@@ -153,6 +153,12 @@ def test_keyword_match(testdir):
     result.assert_outcomes(failed=1)
 
 
+def test_run_on_init_file(testdir):
+    d = testdir.mkpydir("tests")
+    result = testdir.runpytest("--flake8", d / "__init__.py")
+    result.assert_outcomes(passed=1)
+
+
 @pytest.mark.xfail("sys.platform == 'win32'")
 def test_unicode_error(testdir):
     x = testdir.tmpdir.join("x.py")
