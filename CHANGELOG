@@ -1,3 +1,9 @@
+1.0.7
+-----
+
+- Implement collect() for Flake8Item; from @thomascobb
+- Document skipping behavior in README; from @jpyams
+
 1.0.6
 -----
 
