@@ -2,11 +2,11 @@
 
 import os
 import re
+from contextlib import redirect_stdout, redirect_stderr
+from io import BytesIO, TextIOWrapper
 
 from flake8.main import application
 from flake8.options import config
-
-import py
 
 import pytest
 
@@ -116,15 +116,22 @@ class Flake8Item(pytest.Item, pytest.File):
             pytest.skip("file(s) previously passed FLAKE8 checks")
 
     def runtest(self):
-        call = py.io.StdCapture.call
-        found_errors, out, err = call(
-            check_file,
-            self.fspath,
-            self.flake8ignore,
-            self.maxlength,
-            self.maxcomplexity,
-            self.showshource,
-            self.statistics)
+        with BytesIO() as bo, TextIOWrapper(bo, encoding='utf-8') as to, \
+             BytesIO() as be, TextIOWrapper(be, encoding='utf-8') as te, \
+             redirect_stdout(to), redirect_stderr(te):
+            found_errors = check_file(
+                self.fspath,
+                self.flake8ignore,
+                self.maxlength,
+                self.maxcomplexity,
+                self.showshource,
+                self.statistics
+            )
+            to.flush()
+            te.flush()
+            out = bo.getvalue().decode('utf-8')
+            err = be.getvalue().decode('utf-8')
+
         if found_errors:
             raise Flake8Error(out, err)
         # update mtime only if test passed
