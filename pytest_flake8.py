@@ -30,6 +30,9 @@ def pytest_addoption(parser):
         "flake8-max-line-length",
         help="maximum line length")
     parser.addini(
+        "flake8-max-doc-length",
+        help="maximum doc line length")
+    parser.addini(
         "flake8-max-complexity",
         help="McCabe complexity threshold")
     parser.addini(
@@ -48,6 +51,7 @@ def pytest_configure(config):
     if config.option.flake8:
         config._flake8ignore = Ignorer(config.getini("flake8-ignore"))
         config._flake8maxlen = config.getini("flake8-max-line-length")
+        config._flake8maxdoclen = config.getini("flake8-max-doc-length")
         config._flake8maxcomplexity = config.getini("flake8-max-complexity")
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
@@ -67,6 +71,7 @@ def pytest_collect_file(path, parent):
                 item = Flake8Item.from_parent(parent, fspath=path)
                 item.flake8ignore = flake8ignore
                 item.maxlength = config._flake8maxlen
+                item.maxdoclength = config._flake8maxdoclen
                 item.maxcomplexity = config._flake8maxcomplexity
                 item.showshource = config._flake8showshource
                 item.statistics = config._flake8statistics
@@ -77,6 +82,7 @@ def pytest_collect_file(path, parent):
                     parent,
                     flake8ignore=flake8ignore,
                     maxlength=config._flake8maxlen,
+                    maxdoclength=config._flake8maxdoclen,
                     maxcomplexity=config._flake8maxcomplexity,
                     showshource=config._flake8showshource,
                     statistics=config._flake8statistics)
@@ -95,12 +101,14 @@ class Flake8Error(Exception):
 class Flake8Item(pytest.Item, pytest.File):
 
     def __init__(self, fspath, parent, flake8ignore=None, maxlength=None,
+                 maxdoclength=None,
                  maxcomplexity=None, showshource=None, statistics=None):
         super(Flake8Item, self).__init__(fspath, parent)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
         self.flake8ignore = flake8ignore
         self.maxlength = maxlength
+        self.maxdoclength = maxdoclength
         self.maxcomplexity = maxcomplexity
         self.showshource = showshource
         self.statistics = statistics
@@ -123,6 +131,7 @@ class Flake8Item(pytest.Item, pytest.File):
                 self.fspath,
                 self.flake8ignore,
                 self.maxlength,
+                self.maxdoclength,
                 self.maxcomplexity,
                 self.showshource,
                 self.statistics
@@ -186,12 +195,14 @@ class Ignorer:
         return l
 
 
-def check_file(path, flake8ignore, maxlength, maxcomplexity,
+def check_file(path, flake8ignore, maxlength, maxdoclenght, maxcomplexity,
                showshource, statistics):
     """Run flake8 over a single file, and return the number of failures."""
     args = []
     if maxlength:
         args += ['--max-line-length', maxlength]
+    if maxdoclenght:
+        args += ['--max-doc-length', maxdoclenght]
     if maxcomplexity:
         args += ['--max-complexity', maxcomplexity]
     if showshource:
