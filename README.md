@@ -37,7 +37,7 @@ basis which errors or warnings to ignore, see
 [flake8-ignore](#flake8-ignore).
 
 
-Configuring FLAKE8 options per project and file {#flake8-ignore}
+Configuring FLAKE8 options per project and file
 ===============================================
 
 Maximum line length can be configured for the whole project by adding a
