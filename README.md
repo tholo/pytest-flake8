@@ -2,18 +2,11 @@ pytest plugin for efficiently checking PEP8 compliance
 ===============
 
 [![image](https://img.shields.io/pypi/v/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
-
 [![image](https://img.shields.io/pypi/pyversions/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
-
-[![image](https://img.shields.io/pypi/implementation/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
-
-[![image](https://img.shields.io/pypi/status/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
-
+[![PyPi](https://img.shields.io/pypi/status/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
 [![CI](https://github.com/VRGhost/pytest-flake8/actions/workflows/main.yml/badge.svg)](https://github.com/VRGhost/pytest-flake8/actions/workflows/main.yml)
-
-[![image](https://img.shields.io/github/issues/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/issues)
-
-[![image](https://img.shields.io/github/issues-pr/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/pulls)
+[![Issues](https://img.shields.io/github/issues/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/issues)
+[![PRs](https://img.shields.io/github/issues-pr/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/pulls)
 
 Usage
 =====
