@@ -23,10 +23,7 @@ class TestIgnores:
     def example(self, request):
         """Create a test file."""
         testdir = request.getfixturevalue("testdir")
-        import sys
-
-        print(testdir, file=sys.stderr)
-        p = testdir.makepyfile("")
+        p = testdir.makepyfile("example")
         p.write("class AClass:\n    pass\n       \n\n# too many spaces")
         return p
 
