@@ -3,10 +3,10 @@
 import os
 import re
 
-import pytest
-
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, TextIOWrapper
+
+import pytest
 
 from flake8.main import application
 from flake8.options import config
