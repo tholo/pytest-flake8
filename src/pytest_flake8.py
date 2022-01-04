@@ -3,12 +3,11 @@
 import os
 import re
 
+import py
+import pytest
+
 from flake8.main import application
 from flake8.options import config
-
-import py
-
-import pytest
 
 __version__ = "0.6"
 
