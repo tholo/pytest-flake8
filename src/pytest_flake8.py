@@ -10,7 +10,7 @@ import py
 
 import pytest
 
-__version__ = '0.6'
+__version__ = "0.6"
 
 HISTKEY = "flake8/mtimes"
 
@@ -19,28 +19,31 @@ def pytest_addoption(parser):
     """Hook up additional options."""
     group = parser.getgroup("general")
     group.addoption(
-        '--flake8', action='store_true',
-        help="perform some flake8 sanity checks on .py files")
+        "--flake8",
+        action="store_true",
+        help="perform some flake8 sanity checks on .py files",
+    )
     parser.addini(
-        "flake8-ignore", type="linelist",
+        "flake8-ignore",
+        type="linelist",
         help="each line specifies a glob pattern and whitespace "
-             "separated FLAKE8 errors or warnings which will be ignored, "
-             "example: *.py W293")
+        "separated FLAKE8 errors or warnings which will be ignored, "
+        "example: *.py W293",
+    )
+    parser.addini("flake8-max-line-length", help="maximum line length")
+    parser.addini("flake8-max-complexity", help="McCabe complexity threshold")
     parser.addini(
-        "flake8-max-line-length",
-        help="maximum line length")
+        "flake8-show-source",
+        type="bool",
+        help="show the source generate each error or warning",
+    )
+    parser.addini("flake8-statistics", type="bool", help="count errors and warnings")
     parser.addini(
-        "flake8-max-complexity",
-        help="McCabe complexity threshold")
-    parser.addini(
-        "flake8-show-source", type="bool",
-        help="show the source generate each error or warning")
-    parser.addini(
-        "flake8-statistics", type="bool",
-        help="count errors and warnings")
-    parser.addini(
-        "flake8-extensions", type="args", default=[".py"],
-        help="a list of file extensions, for example: .py .pyx")
+        "flake8-extensions",
+        type="args",
+        default=[".py"],
+        help="a list of file extensions, for example: .py .pyx",
+    )
 
 
 def pytest_configure(config):
@@ -52,8 +55,8 @@ def pytest_configure(config):
         config._flake8showshource = config.getini("flake8-show-source")
         config._flake8statistics = config.getini("flake8-statistics")
         config._flake8exts = config.getini("flake8-extensions")
-        config.addinivalue_line('markers', "flake8: Tests which run flake8.")
-        if hasattr(config, 'cache'):
+        config.addinivalue_line("markers", "flake8: Tests which run flake8.")
+        if hasattr(config, "cache"):
             config._flake8mtimes = config.cache.get(HISTKEY, {})
 
 
@@ -79,7 +82,8 @@ def pytest_collect_file(path, parent):
                     maxlength=config._flake8maxlen,
                     maxcomplexity=config._flake8maxcomplexity,
                     showshource=config._flake8showshource,
-                    statistics=config._flake8statistics)
+                    statistics=config._flake8statistics,
+                )
 
 
 def pytest_unconfigure(config):
@@ -89,13 +93,20 @@ def pytest_unconfigure(config):
 
 
 class Flake8Error(Exception):
-    """ indicates an error during flake8 checks. """
+    """indicates an error during flake8 checks."""
 
 
 class Flake8Item(pytest.Item, pytest.File):
-
-    def __init__(self, fspath, parent, flake8ignore=None, maxlength=None,
-                 maxcomplexity=None, showshource=None, statistics=None):
+    def __init__(
+        self,
+        fspath,
+        parent,
+        flake8ignore=None,
+        maxlength=None,
+        maxcomplexity=None,
+        showshource=None,
+        statistics=None,
+    ):
         super(Flake8Item, self).__init__(fspath, parent)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
@@ -124,14 +135,17 @@ class Flake8Item(pytest.Item, pytest.File):
             self.maxlength,
             self.maxcomplexity,
             self.showshource,
-            self.statistics)
+            self.statistics,
+        )
         if found_errors:
             raise Flake8Error(out, err)
         # update mtime only if test passed
         # otherwise failures would not be re-run next time
         if hasattr(self.config, "_flake8mtimes"):
-            self.config._flake8mtimes[str(self.fspath)] = (self._flake8mtime,
-                                                           self.flake8ignore)
+            self.config._flake8mtimes[str(self.fspath)] = (
+                self._flake8mtime,
+                self.flake8ignore,
+            )
 
     def repr_failure(self, excinfo):
         if excinfo.errisinstance(Flake8Error):
@@ -179,20 +193,19 @@ class Ignorer:
         return l
 
 
-def check_file(path, flake8ignore, maxlength, maxcomplexity,
-               showshource, statistics):
+def check_file(path, flake8ignore, maxlength, maxcomplexity, showshource, statistics):
     """Run flake8 over a single file, and return the number of failures."""
     args = []
     if maxlength:
-        args += ['--max-line-length', maxlength]
+        args += ["--max-line-length", maxlength]
     if maxcomplexity:
-        args += ['--max-complexity', maxcomplexity]
+        args += ["--max-complexity", maxcomplexity]
     if showshource:
-        args += ['--show-source']
+        args += ["--show-source"]
     if statistics:
-        args += ['--statistics']
+        args += ["--statistics"]
     app = application.Application()
-    if not hasattr(app, 'parse_preliminary_options_and_args'):  # flake8 >= 3.8
+    if not hasattr(app, "parse_preliminary_options_and_args"):  # flake8 >= 3.8
         prelim_opts, remaining_args = app.parse_preliminary_options(args)
         config_finder = config.ConfigFileFinder(
             app.program,
@@ -212,7 +225,7 @@ def check_file(path, flake8ignore, maxlength, maxcomplexity,
     if flake8ignore:
         app.options.ignore = flake8ignore
     app.make_formatter()  # fix this
-    if hasattr(app, 'make_notifier'):
+    if hasattr(app, "make_notifier"):
         # removed in flake8 3.7+
         app.make_notifier()
     app.make_guide()
