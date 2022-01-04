@@ -8,7 +8,7 @@ setuptools.setup(
     name="pytest-flake8",
     version="1.0.7",
     description="pytest plugin to check FLAKE8 requirements",
-    long_description=open("README.rst").read(),
+    long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -31,7 +31,7 @@ setuptools.setup(
     author_email="tholo@sigmasoft.com",
     maintainer="Ilja Orlovs",
     maintainer_email="vrghost@gmail.com",
-    url="https://github.com/tholo/pytest-flake8",
+    url="https://github.com/VRGhost/pytest-flake8",
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
     py_modules=[

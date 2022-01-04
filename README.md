@@ -1,6 +1,5 @@
----
-title: pytest plugin for efficiently checking PEP8 compliance
----
+pytest plugin for efficiently checking PEP8 compliance
+===============
 
 [![image](https://img.shields.io/pypi/v/pytest-flake8.svg)](https://pypi.python.org/pypi/pytest-flake8)
 
@@ -29,26 +28,21 @@ After installing it, when you run tests with the option:
 
 every file ending in `.py` will be discovered and checked with flake8.
 
-::: {.note}
-::: {.admonition-title}
-Note
-:::
+###### Note
 
 If optional flake8 plugins are installed, those will be used
 automatically. No provisions have been made for configuring these via
 [pytest](http://pytest.org).
-:::
 
-::: {.warning}
-::: {.admonition-title}
-Warning
-:::
+
+###### Warning
+
 
 Running flake8 tests on your project is likely to cause a number of
 issues. The plugin allows one to configure on a per-project and per-file
 basis which errors or warnings to ignore, see
 [flake8-ignore](#flake8-ignore).
-:::
+
 
 Configuring FLAKE8 options per project and file {#flake8-ignore}
 ===============================================
