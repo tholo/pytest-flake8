@@ -12,7 +12,7 @@ Usage
 
 Install by running the command:
 
-    pip install pytest-flake8
+    pip install pytest-flake8-v2
 
 After installing it, when you run tests with the option:
 
