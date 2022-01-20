@@ -5,8 +5,6 @@ from __future__ import print_function
 import py
 import pytest
 
-pytest_plugins = ("pytester",)
-
 
 def test_version():
     """Verify we can get version."""

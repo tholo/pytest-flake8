@@ -39,6 +39,28 @@ basis which errors or warnings to ignore, see
 Configuring FLAKE8 options per project and file
 ===============================================
 
+###### Flake8 config file
+
+Flake8-pytest automatically sets flake8 config file to match pytest config file path.
+This means that you can configure flake8 by adding a `[flake8]` section to the pytests' config.
+
+    #
+    [pytest]
+    markers = flake8
+
+    [flake8]
+    max-line-length = 71
+    ignore = W292 ; ignore "no newline at end of file"
+
+You can override this default by using `flake8-config` parameter
+
+    [pytest]
+    flake8-config = ./pytest.ini
+
+If path relative, than it is treated as relative to pytests' config file.
+
+###### Misc
+
 Maximum line length can be configured for the whole project by adding a
 `flake8-max-line-length` option to your `setup.cfg` or `tox.ini` file
 like this:
@@ -114,7 +136,7 @@ Notes
 =====
 
 The repository of this plugin is at
-<https://github.com/tholo/pytest-flake8>
+<https://github.com/VRGhost/pytest-flake8>
 
 For more info on [pytest](http://pytest.org) see <http://pytest.org>
 
