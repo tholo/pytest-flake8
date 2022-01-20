@@ -1,8 +1,8 @@
 """py.test plugin to test with flake8."""
 
+import logging
 import os
 import re
-import logging
 
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, TextIOWrapper

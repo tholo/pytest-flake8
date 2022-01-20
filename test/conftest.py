@@ -10,8 +10,9 @@ pytest_plugins = ("pytester",)
 def mock_flake8_app():
     """Returns a context that temporarily mocks pytest application.
 
-    This binding is made a context because mocking the pytest app causes side effect in this
-    (pytest-flake8's) test suite while the context exitst
+    This binding is made a context because mocking the pytest app
+    causes side effect in this (pytest-flake8's) test suite
+    while the context exits.
     """
     import flake8.main.application
 
