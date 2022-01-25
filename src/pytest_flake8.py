@@ -123,7 +123,7 @@ def pytest_collect_file(path, parent):
             out_item = Flake8Item.from_parent(parent, fspath=path, name=path)
         else:
             assert is_pytest_version("[789]"), "pytest 7+"
-            out_item = Flake8Item.from_parent(parent, path=Path(path))
+            out_item = Flake8Item.from_parent(parent, path=Path(path), name=str(path))
 
         out_item.flake8ignore = flake8ignore
         out_item.maxlength = config._flake8maxlen
