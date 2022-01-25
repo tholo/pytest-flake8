@@ -28,7 +28,7 @@ jobs:
       matrix:
         flake8-version: ['==3.9.2', '>=4.0.1']
         python-version: [3.6, 3.9, '3.10']
-        pytest-version: ['~>6.0', '~>6.1', '~>6.2', '==7.0.0rc1']
+        pytest-version: ['>=6.0,<6.1', '>=6.1,<6.2', '>=6.2,<7', '==7.0.0rc1']
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}

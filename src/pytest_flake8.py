@@ -63,7 +63,7 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-config",
         default="__PYTEST_INI__",
-        type="string",
+        type=None,
         help="Path to the flake8 config file. (Default is the path to the pytest.ini)",
     )
 
