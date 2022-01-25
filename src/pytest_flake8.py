@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 HISTKEY = "flake8/mtimes"
 
 
+def is_pytest_version(release: str, major: str = r"\d*"):
+    return re.match(rf"^(?:{release})[.](?:{major})([.].*)?$", pytest.__version__)
+
+
 def pytest_addoption(parser):
     """Hook up additional options."""
     group = parser.getgroup("general")
@@ -58,7 +62,7 @@ def pytest_addoption(parser):
     parser.addini(
         "flake8-config",
         default="__PYTEST_INI__",
-        type="string",
+        type=None,
         help="Path to the flake8 config file. (Default is the path to the pytest.ini)",
     )
 
@@ -89,7 +93,10 @@ def pytest_collect_file(path, parent):
     active_flake8_config = None
     if config._flake8config:
         orig_conifg_val = config._flake8config
-        pytest_config = config.inipath  # may be None
+        if is_pytest_version("6", "0"):
+            pytest_config = Path(config.inifile) if config.inifile else None
+        else:
+            pytest_config = config.inipath  # may be None
         active_flake8_config = None
         if orig_conifg_val == "__PYTEST_INI__":
             active_flake8_config = pytest_config
@@ -108,14 +115,18 @@ def pytest_collect_file(path, parent):
 
     # raise Exception([orig_conifg_val, pytest_config, active_flake8_config])
     if active_flake8_config:
-        active_flake8_config = str(active_flake8_config.resolve())
+        active_flake8_config = active_flake8_config.resolve()
 
     flake8ignore = config._flake8ignore(path)
     if flake8ignore is not None:
-        if hasattr(Flake8Item, "from_parent"):
-            out_item = Flake8Item.from_parent(parent, fspath=path)
+        if is_pytest_version("6"):
+            out_item = Flake8Item.from_parent(parent, fspath=path, name=path)
         else:
-            out_item = Flake8Item(path, parent)
+            assert is_pytest_version("[789]"), "pytest 7+"
+            out_item = Flake8Item.from_parent(
+                parent=parent, path=Path(path), name=str(path)
+            )
+
         out_item.flake8ignore = flake8ignore
         out_item.maxlength = config._flake8maxlen
         out_item.maxcomplexity = config._flake8maxcomplexity
@@ -136,26 +147,11 @@ class Flake8Error(Exception):
 
 
 class Flake8Item(pytest.Item, pytest.File):
-    def __init__(
-        self,
-        fspath,
-        parent,
-        flake8ignore=None,
-        maxlength=None,
-        maxcomplexity=None,
-        showshource=None,
-        statistics=None,
-        config_file=None,
-    ):
-        super().__init__(fspath, parent)
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("fspath", None)
+        super().__init__(*args, **kwargs)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
-        self.flake8ignore = flake8ignore
-        self.maxlength = maxlength
-        self.maxcomplexity = maxcomplexity
-        self.showshource = showshource
-        self.statistics = statistics
-        self.config_file = config_file
 
     def setup(self):
         if hasattr(self.config, "_flake8mtimes"):
@@ -253,7 +249,7 @@ def check_file(
     """Run flake8 over a single file, and return the number of failures."""
     args = []
     if config_file:
-        args += ["--config", config_file]
+        args += ["--config", os.fspath(config_file)]
     if maxlength:
         args += ["--max-line-length", maxlength]
     if maxcomplexity:

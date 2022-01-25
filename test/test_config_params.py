@@ -67,7 +67,7 @@ def test_explicit_flake8_config_path(
     with mock_flake8_app() as mock_app:
         testdir.runpytest("--flake8")
     mock_app.parse_preliminary_options.assert_called_once_with(
-        ["--config", flake8_config.strpath]
+        ["--config", flake8_config]
     )
 
 
