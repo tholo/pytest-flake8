@@ -180,14 +180,18 @@ def test_keyword_match(testdir):
             #
     """
     )
-    result = testdir.runpytest("--flake8", "-mflake8")
+    result = testdir.runpytest("--flake8", "-mflake8", "-vv")
     result.stdout.fnmatch_lines(
         [
             "*E201*",
             "*1 failed*",
         ]
     )
-    result.assert_outcomes(failed=1)
+    if pytest.__version__.startswith("7."):
+        result.assert_outcomes(failed=1, deselected=1)
+    else:
+        # pytest v6
+        result.assert_outcomes(failed=1)
 
 
 def test_run_on_init_file(testdir):

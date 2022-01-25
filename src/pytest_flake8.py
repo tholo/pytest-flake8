@@ -20,6 +20,11 @@ logger = logging.getLogger(__name__)
 HISTKEY = "flake8/mtimes"
 
 
+def is_pytest_version(release: int):
+    release_exp = re.escape(str(release))
+    return re.match(rf"^{release_exp}[.].*", pytest.__version__)
+
+
 def pytest_addoption(parser):
     """Hook up additional options."""
     group = parser.getgroup("general")
@@ -108,14 +113,16 @@ def pytest_collect_file(path, parent):
 
     # raise Exception([orig_conifg_val, pytest_config, active_flake8_config])
     if active_flake8_config:
-        active_flake8_config = str(active_flake8_config.resolve())
+        active_flake8_config = active_flake8_config.resolve()
 
     flake8ignore = config._flake8ignore(path)
     if flake8ignore is not None:
-        if hasattr(Flake8Item, "from_parent"):
-            out_item = Flake8Item.from_parent(parent, fspath=path)
+        if is_pytest_version(6):
+            out_item = Flake8Item.from_parent(parent, fspath=path, name=path)
         else:
-            out_item = Flake8Item(path, parent)
+            # pytest 7+
+            out_item = Flake8Item.from_parent(parent, path=Path(path))
+
         out_item.flake8ignore = flake8ignore
         out_item.maxlength = config._flake8maxlen
         out_item.maxcomplexity = config._flake8maxcomplexity
@@ -136,26 +143,10 @@ class Flake8Error(Exception):
 
 
 class Flake8Item(pytest.Item, pytest.File):
-    def __init__(
-        self,
-        fspath,
-        parent,
-        flake8ignore=None,
-        maxlength=None,
-        maxcomplexity=None,
-        showshource=None,
-        statistics=None,
-        config_file=None,
-    ):
-        super().__init__(fspath, parent)
+    def __init__(self, *args, fspath=None, **kwargs):
+        super().__init__(*args, **kwargs)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
-        self.flake8ignore = flake8ignore
-        self.maxlength = maxlength
-        self.maxcomplexity = maxcomplexity
-        self.showshource = showshource
-        self.statistics = statistics
-        self.config_file = config_file
 
     def setup(self):
         if hasattr(self.config, "_flake8mtimes"):
@@ -253,7 +244,7 @@ def check_file(
     """Run flake8 over a single file, and return the number of failures."""
     args = []
     if config_file:
-        args += ["--config", config_file]
+        args += ["--config", os.fspath(config_file)]
     if maxlength:
         args += ["--max-line-length", maxlength]
     if maxcomplexity:
