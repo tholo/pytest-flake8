@@ -123,7 +123,9 @@ def pytest_collect_file(path, parent):
             out_item = Flake8Item.from_parent(parent, fspath=path, name=path)
         else:
             assert is_pytest_version("[789]"), "pytest 7+"
-            out_item = Flake8Item.from_parent(parent, path=Path(path), name=str(path))
+            out_item = Flake8Item.from_parent(
+                parent=parent, path=Path(path), name=str(path)
+            )
 
         out_item.flake8ignore = flake8ignore
         out_item.maxlength = config._flake8maxlen
@@ -145,7 +147,8 @@ class Flake8Error(Exception):
 
 
 class Flake8Item(pytest.Item, pytest.File):
-    def __init__(self, *args, fspath=None, **kwargs):
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("fspath", None)
         super().__init__(*args, **kwargs)
         self._nodeid += "::FLAKE8"
         self.add_marker("flake8")
