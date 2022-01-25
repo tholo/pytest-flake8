@@ -20,9 +20,8 @@ logger = logging.getLogger(__name__)
 HISTKEY = "flake8/mtimes"
 
 
-def is_pytest_version(release: int):
-    release_exp = re.escape(str(release))
-    return re.match(rf"^{release_exp}[.].*", pytest.__version__)
+def is_pytest_version(release: str, major: str = r"\d*"):
+    return re.match(rf"^(?:{release})[.](?:{major})([.].*)?$", pytest.__version__)
 
 
 def pytest_addoption(parser):
@@ -94,7 +93,10 @@ def pytest_collect_file(path, parent):
     active_flake8_config = None
     if config._flake8config:
         orig_conifg_val = config._flake8config
-        pytest_config = config.inipath  # may be None
+        if is_pytest_version("6", "0"):
+            pytest_config = Path(config.inifile) if config.inifile else None
+        else:
+            pytest_config = config.inipath  # may be None
         active_flake8_config = None
         if orig_conifg_val == "__PYTEST_INI__":
             active_flake8_config = pytest_config
@@ -117,10 +119,10 @@ def pytest_collect_file(path, parent):
 
     flake8ignore = config._flake8ignore(path)
     if flake8ignore is not None:
-        if is_pytest_version(6):
+        if is_pytest_version("6"):
             out_item = Flake8Item.from_parent(parent, fspath=path, name=path)
         else:
-            # pytest 7+
+            assert is_pytest_version("[789]"), "pytest 7+"
             out_item = Flake8Item.from_parent(parent, path=Path(path))
 
         out_item.flake8ignore = flake8ignore
