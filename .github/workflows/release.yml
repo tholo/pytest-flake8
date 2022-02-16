@@ -40,7 +40,8 @@ jobs:
           git config --global user.email "github+actions@gmail.com"
           git config --global user.name "Actions"
           git tag -f stable-latest
-          git push --tags --force
+          git push  # push branch
+          git push --tags --force # push tags
           RELEASE_TAG=$(git tag --points-at HEAD | grep '^v' | sort -nr | head -n1)
           echo ::set-output name=release_tag::${RELEASE_TAG}
           echo ::set-output name=release_version::${RELEASE_TAG:1}  # same as 'tag' but without the 'v' prefix
