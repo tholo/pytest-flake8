@@ -14,7 +14,6 @@ on:
 
 jobs:
   tag-release: # Bump version for the next release
-    needs: publish
     runs-on: ubuntu-latest
     outputs:
       release-tag: ${{ steps.publish-git-tags.outputs.release_tag }}
