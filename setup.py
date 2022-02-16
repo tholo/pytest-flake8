@@ -6,7 +6,7 @@ import setuptools
 
 setuptools.setup(
     name="pytest-flake8-v2",
-    version="1.1.4",
+    version="1.1.5",
     description="pytest plugin to check FLAKE8 requirements",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
