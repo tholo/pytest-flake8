@@ -33,7 +33,7 @@ def test_all_legacy_ini_params(testdir, mock_py_file, mock_flake8_app):
     mock_app.parse_preliminary_options.assert_called_once_with(
         [
             "--config",
-            pytest_ini,
+            str(pytest_ini),
             "--max-line-length",
             "1024042",
             "--max-complexity",
@@ -81,7 +81,7 @@ def test_flake8_config_has_effect(testdir, mock_py_file, silence_error):
 
         [flake8]
         max-line-length = {104000 if silence_error else 10}
-        ignore = W292 ; ignore "no newline at end of file"
+        ignore = W292 ## ignore "no newline at end of file"
     """
     )
     test_out = testdir.runpytest("--flake8", "--verbose")

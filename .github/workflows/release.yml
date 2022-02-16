@@ -1,17 +1,57 @@
 name: Release
 on:
-  workflow_run:
-    workflows: ["CI"]
-    branches: [main]
-    types:
-      - completed
+  workflow_dispatch:
+    inputs:
+      verson_part:
+        description: "Part of the version to bump."
+        required: true
+        default: dev
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
 
 jobs:
-  publish:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+  tag-release: # Bump version for the next release
+    needs: publish
     runs-on: ubuntu-latest
+    outputs:
+      release-tag: ${{ steps.publish-git-tags.outputs.release_tag }}
+      release-version: ${{ steps.publish-git-tags.outputs.release_version }}
     steps:
       - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Install dependencies
+        run: |
+          pip install bump2version tox tox-gh-actions
+      - name: Bump version
+        run: |
+          git config --global user.email "github+actions@gmail.com"
+          git config --global user.name "Actions"
+          bump2version "${BUMPED_VERSION_PART}"
+        env:
+          BUMPED_VERSION_PART: ${{ github.event.inputs.verson_part }}
+      - name: Run tests
+        run: tox
+      - name: Push git tags
+        id: publish-git-tags
+        run: |
+          git config --global user.email "github+actions@gmail.com"
+          git config --global user.name "Actions"
+          git tag -f stable-latest
+          git push --tags --force
+          RELEASE_TAG=$(git tag --points-at HEAD | grep '^v' | sort -nr | head -n1)
+          echo ::set-output name=release_tag::${RELEASE_TAG}
+          echo ::set-output name=release_version::${RELEASE_TAG:1}  # same as 'tag' but without the 'v' prefix
+  publish-package:
+    runs-on: ubuntu-latest
+    needs: tag-release
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{needs.tag-release.outputs.release-tag}}
       - name: Set up Python
         uses: actions/setup-python@v2
       - name: Install dependencies
@@ -23,25 +63,8 @@ jobs:
         with:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
-      - name: Publish distribution to PRODUCTION PyPI
-        # if: false
-        uses: pypa/gh-action-pypi-publish@master
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
-  bump-version: # Bump version for the next release
-    needs: publish
-    runs-on: ubuntu-latest
-    # Bump version in the PR that targets the "main" branch
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up Python
-        uses: actions/setup-python@v2
-      - name: Install dependencies
-        run: |
-          pip install bump2version
-      - name: Bump version
-        run: |
-          git config --global user.email "github+actions@gmail.com"
-          git config --global user.name "Actions"
-          bump2version patch
-          git push --follow-tags
+      # - name: Publish distribution to PRODUCTION PyPI
+      #   if: false
+      #   uses: pypa/gh-action-pypi-publish@master
+      #   with:
+      #     password: ${{ secrets.PYPI_API_TOKEN }}

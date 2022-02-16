@@ -1,5 +1,7 @@
 """Unit tests for flake8 pytest plugin."""
 
+from pathlib import Path
+
 import pytest
 
 
@@ -13,7 +15,7 @@ def test_version():
 @pytest.fixture
 def extra_runtest_args():
     """An array of arguments that will be appended to all runpytest() calls."""
-    return ["-p", "no:warnings"]
+    return []
 
 
 class TestIgnores:
@@ -24,9 +26,9 @@ class TestIgnores:
     def example(self, request):
         """Create a test file."""
         testdir = request.getfixturevalue("testdir")
-        p = testdir.makepyfile("example")
-        p.write("class AClass:\n    pass\n       \n\n# too many spaces")
-        return p
+        fobj = testdir.makepyfile(test_ignores_example="")
+        fobj.write("class AClass:\n    pass\n       \n\n# too many spaces")
+        return fobj
 
     def test_ignores(self, tmpdir):
         """Verify parsing of ignore statements."""
@@ -34,9 +36,9 @@ class TestIgnores:
 
         ignores = ["E203", "b/?.py E204 W205", "z.py ALL", "*.py E300"]
         ign = Ignorer(ignores)
-        assert ign(tmpdir.join("a/b/x.py")) == "E203 E204 W205 E300".split()
-        assert ign(tmpdir.join("a/y.py")) == "E203 E300".split()
-        assert ign(tmpdir.join("a/z.py")) is None
+        assert ign(Path(tmpdir.join("a/b/x.py"))) == "E203 E204 W205 E300".split()
+        assert ign(Path(tmpdir.join("a/y.py"))) == "E203 E300".split()
+        assert ign(Path(tmpdir.join("a/z.py"))) is None
 
     def test_default_flake8_ignores(self, testdir, extra_runtest_args):
         testdir.makeini(
@@ -76,12 +78,13 @@ class TestIgnores:
         testdir.tmpdir.ensure("xy.py")
         testdir.tmpdir.ensure("tests/hello.py")
         result = testdir.runpytest("--flake8", "-s", *extra_runtest_args)
-        result.assert_outcomes(passed=1)
+        result.assert_outcomes(passed=1, skipped=1)
         result.stdout.fnmatch_lines(
             [
-                "*collected 1*",
-                "*xy.py .*",
-                "*1 passed*",
+                r"*collected 2*",
+                r"*xy.py [.]",
+                r"*tests/hello.py s",
+                r"*1 passed*",
             ]
         )
 
@@ -96,6 +99,13 @@ class TestIgnores:
         )
         result.assert_outcomes(failed=1)
 
+    def test_mtime_caching_simple(self, testdir, extra_runtest_args):
+        testdir.tmpdir.ensure("hello.py")  # empty file, should pass the check
+        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
+        result.assert_outcomes(passed=1)
+        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
+        result.assert_outcomes(skipped=1)
+
     def test_mtime_caching(self, testdir, example, extra_runtest_args):
         testdir.tmpdir.ensure("hello.py")
         result = testdir.runpytest("--flake8", *extra_runtest_args)
@@ -107,7 +117,7 @@ class TestIgnores:
             ]
         )
         result.assert_outcomes(passed=1, failed=1)
-        result = testdir.runpytest("--flake8", *extra_runtest_args)
+        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
         result.stdout.fnmatch_lines(
             [
                 "*W293*",
