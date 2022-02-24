@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.1
+- pyproject.toml is no longer implicitly passed through to flake8 (issue #7)
+
 ## 1.2.0
 - DROPPED flake8 v3 support
 - DROPPED pytest v6 support
