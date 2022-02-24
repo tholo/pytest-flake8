@@ -129,11 +129,13 @@ def path_sepcific_flake8_settings(
     """Returns a copy of `parent` settings with any path-sepcific overrides."""
     overrides = {}
 
+    active_flake8_config = None
     if parent.flake8_config:
         orig_conifg_val = parent.flake8_config
         pytest_config = config.inipath  # may be None
         if orig_conifg_val == "__PYTEST_INI__":
-            active_flake8_config = pytest_config
+            if pytest_config and pytest_config.suffix.lower() != ".toml":
+                active_flake8_config = pytest_config
         else:
             orig_conifg_val = Path(orig_conifg_val)
             if not orig_conifg_val.is_absolute() and pytest_config:
@@ -145,10 +147,10 @@ def path_sepcific_flake8_settings(
                 logger.warning(
                     f"Flake8 config file {active_flake8_config!r} does not exist."
                 )
-                active_flake8_config = None
+                pass
     else:
         # flake8 config absence is explicitly requested
-        active_flake8_config = None
+        pass
 
     if active_flake8_config:
         # Ensure that the variable is of 'pathlib.Path' class

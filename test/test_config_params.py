@@ -71,6 +71,25 @@ def test_explicit_flake8_config_path(
     )
 
 
+def test_implicit_toml_config(testdir, mock_py_file, mock_flake8_app):
+    testdir.makepyprojecttoml(
+        """
+        [tool.pytest.ini_options]
+        flake8-max-line-length = 1024042
+    """
+    )
+    with mock_flake8_app() as mock_app:
+        testdir.runpytest("--flake8")
+
+    # --config param is noteably absent
+    mock_app.parse_preliminary_options.assert_called_once_with(
+        [
+            "--max-line-length",
+            "1024042",
+        ]
+    )
+
+
 @pytest.mark.parametrize("silence_error", [True, False])
 def test_flake8_config_has_effect(testdir, mock_py_file, silence_error):
     """Check that changing values in the flake8 config actually affects its behaviour."""
