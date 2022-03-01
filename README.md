@@ -7,6 +7,9 @@ pytest plugin for efficiently checking PEP8 compliance
 [![Issues](https://img.shields.io/github/issues/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/issues)
 [![PRs](https://img.shields.io/github/issues-pr/VRGhost/pytest-flake8.svg)](https://github.com/VRGhost/pytest-flake8/pulls)
 
+
+[![Download stats](https://pepy.tech/badge/pytest-flake8-v2/week)](https://pepy.tech/project/pytest-flake8-v2)
+
 Usage
 =====
 
@@ -23,8 +26,8 @@ every file ending in `.py` will be discovered and checked with flake8.
 ###### Note
 
 If optional flake8 plugins are installed, those will be used
-automatically. No provisions have been made for configuring these via
-[pytest](http://pytest.org).
+automatically. You can configure them via `flake8` section in the `pytest.ini` file
+or with a standalone flake8 config file (the path can be configure via `flake8-pytest` pytest config parameter).
 
 
 ###### Warning
@@ -59,19 +62,17 @@ You can override this default by using `flake8-config` parameter
 
 If path relative, than it is treated as relative to pytests' config file.
 
+###### Extra CLI parameters
+
+You can set `flake8-cli-arguments` pytest config if you want to pass additional CLI arguments to the flake8.
+E.g.
+
+    [pytest]
+    flake8-cli-arguments = --max-line-length 71
+
+Will cause for all flake8 tests to be called with an equivalent of `flake8 --max-line-length 71 <target_file.py>` command.
+
 ###### Misc
-
-Maximum line length can be configured for the whole project by adding a
-`flake8-max-line-length` option to your `setup.cfg` or `tox.ini` file
-like this:
-
-    # content of setup.cfg
-    [tool:pytest]
-    flake8-max-line-length = 99
-
-Note that the default will be what naturally comes with
-[flake8](https://pypi.python.org/pypi/flake8) (which it turn gets its
-default from [pycodestyle](https://pypi.python.org/pypi/pycodestyle)).
 
 You may configure flake8-checking options for your project by adding an
 `flake8-ignore` entry to your `setup.cfg` or `tox.ini` file like this:

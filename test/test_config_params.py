@@ -15,9 +15,17 @@ def test_default(testdir, mock_py_file, mock_flake8_app):
     mock_app.parse_preliminary_options.assert_called_once_with([])
 
 
-def test_all_legacy_ini_params(testdir, mock_py_file, mock_flake8_app):
+@pytest.mark.parametrize("with_cli_args", [True, False])
+def test_all_legacy_ini_params(testdir, mock_py_file, mock_flake8_app, with_cli_args):
+    if with_cli_args:
+        ini_cli_arg_string = "flake8-cli-arguments = --hello world 42"
+        cli_args = ["--hello", "world", "42"]
+    else:
+        ini_cli_arg_string = ""
+        cli_args = []
+
     pytest_ini = testdir.makeini(
-        """
+        f"""
         [pytest]
         markers = flake8
         flake8-ignore = MOCK42
@@ -26,14 +34,19 @@ def test_all_legacy_ini_params(testdir, mock_py_file, mock_flake8_app):
         flake8-show-source = true
         flake8-statistics = true
         flake8-extensions = .mock-ext-42 .mock-ext-43 .py
+        {ini_cli_arg_string}
     """
     )
+
     with mock_flake8_app() as mock_app:
         testdir.runpytest("--flake8", "--verbose")
     mock_app.parse_preliminary_options.assert_called_once_with(
         [
             "--config",
             str(pytest_ini),
+        ]
+        + cli_args
+        + [
             "--max-line-length",
             "1024042",
             "--max-complexity",
