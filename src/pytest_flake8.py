@@ -14,7 +14,7 @@ import flake8.main.application
 import flake8.options.config
 import pytest
 
-__version__ = "1.2.1"
+__version__ = "1.2.2"
 
 logger = logging.getLogger(__name__)
 
