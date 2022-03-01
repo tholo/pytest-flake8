@@ -82,7 +82,7 @@ def pytest_addoption(parser):
         default=(),
         help="Additional CLI parameters to pass to the flake8 when running the test.",
     )
-    ## Deperecated
+    # Deperecated
     deprecated_msg = (
         "Deprecated, please use flake8 config file or `flake8-cli-arguments`"
     )
