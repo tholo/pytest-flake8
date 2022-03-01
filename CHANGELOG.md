@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3
+- Flake8 tests are now executed at the end of the test session
+- Flake8 result caching is now disabled by default (re-enable with `--flake8-enable-result-caching`)
+
 ## 1.2.2
 - Added `flake8-cli-arguments` pytest config parameter to pass through pytest cli arguments explicitly
 - Marked `flake8-max-line-length`, `flake8-max-complexity`, `flake8-show-source`, `flake8-statistics`
