@@ -9,6 +9,7 @@ from collections import namedtuple
 from contextlib import redirect_stderr, redirect_stdout
 from io import BytesIO, TextIOWrapper
 from pathlib import Path
+from typing import List
 
 import flake8.main.application
 import flake8.options.config
@@ -56,6 +57,13 @@ def pytest_addoption(parser):
         action="store_false",
         dest="flake8",
         help="Disable flake8 integration",
+    )
+    group.addoption(
+        "--flake8-enable-result-caching",
+        action="store_true",
+        default=False,
+        dest="flake8_rest_result_cache_enabled",
+        help="Enable flake8 result caching",
     )
     parser.addini(
         "flake8-config",
@@ -133,7 +141,9 @@ def pytest_configure(config: pytest.Config):
             flake8_exts=config.getini("flake8-extensions"),
             flake8_ignore=Ignorer(config.getini("flake8-ignore")),
             flake8_cli_arguments=tuple(cli_args),
-            flake8_cache=PytestFlake8Cache(enabled=True, mtimes=mtimes),
+            flake8_cache=PytestFlake8Cache(
+                enabled=config.option.flake8_rest_result_cache_enabled, mtimes=mtimes
+            ),
         )
         config.addinivalue_line("markers", "flake8: Tests which run flake8.")
     else:
@@ -203,6 +213,21 @@ def pytest_collect_file(path, parent):
         name=str(path),
         flake8_config=path_sepcific_flake8_settings(flake8_config, pytest_config, path),
     )
+
+
+def pytest_collection_modifyitems(
+    session: pytest.Session, config: pytest.Config, items: List[pytest.Item]
+):
+    # move all flake8 items to the back of the list
+    #  (preserving any other in-group internal ordering)
+    flake8_items = []
+    other_items = []
+    for item in items:
+        if isinstance(item, Flake8Item):
+            flake8_items.append(item)
+        else:
+            other_items.append(item)
+    items[:] = other_items + flake8_items
 
 
 def pytest_unconfigure(config: pytest.Config):

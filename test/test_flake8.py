@@ -15,7 +15,7 @@ def test_version():
 @pytest.fixture
 def extra_runtest_args():
     """An array of arguments that will be appended to all runpytest() calls."""
-    return []
+    return ()
 
 
 class TestIgnores:
@@ -99,16 +99,28 @@ class TestIgnores:
         )
         result.assert_outcomes(failed=1)
 
-    def test_mtime_caching_simple(self, testdir, extra_runtest_args):
+    @pytest.mark.parametrize("enable_caching", [True, False])
+    def test_mtime_caching_simple(self, testdir, extra_runtest_args, enable_caching):
+        my_args = []
+        if enable_caching:
+            my_args.append("--flake8-enable-result-caching")
+        my_args.extend(extra_runtest_args)
+
         testdir.tmpdir.ensure("hello.py")  # empty file, should pass the check
-        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
-        result.assert_outcomes(passed=1)
-        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
-        result.assert_outcomes(skipped=1)
+        result = testdir.runpytest("--flake8", "-vv", *my_args)
+        result.assert_outcomes(passed=1, skipped=0)
+        result = testdir.runpytest("--flake8", "-vv", *my_args)
+        if enable_caching:
+            result.assert_outcomes(passed=0, skipped=1)
+        else:
+            result.assert_outcomes(passed=1, skipped=0)
 
     def test_mtime_caching(self, testdir, example, extra_runtest_args):
+        my_args = ["--flake8-enable-result-caching"]
+        my_args.extend(extra_runtest_args)
+
         testdir.tmpdir.ensure("hello.py")
-        result = testdir.runpytest("--flake8", *extra_runtest_args)
+        result = testdir.runpytest("--flake8", *my_args)
         result.stdout.fnmatch_lines(
             [
                 # "*plugins*flake8*",
@@ -117,7 +129,7 @@ class TestIgnores:
             ]
         )
         result.assert_outcomes(passed=1, failed=1)
-        result = testdir.runpytest("--flake8", "-vv", *extra_runtest_args)
+        result = testdir.runpytest("--flake8", "-vv", *my_args)
         result.stdout.fnmatch_lines(
             [
                 "*W293*",
@@ -131,7 +143,7 @@ class TestIgnores:
             flake8-ignore = *.py W293 W292 W391
         """
         )
-        result = testdir.runpytest("--flake8", *extra_runtest_args)
+        result = testdir.runpytest("--flake8", *my_args)
         result.assert_outcomes(passed=2)
 
 

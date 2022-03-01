@@ -13,12 +13,10 @@
 		}
 	],
 	"configuration":
-	[
-		{
-			"tab_size": 4,
-			"translate_tabs_to_spaces": true,
-			"default_line_ending": "unix",
-			"show_line_endings": true
-		}
-	]
+	{
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true,
+		"default_line_ending": "unix",
+		"show_line_endings": true
+	}
 }
