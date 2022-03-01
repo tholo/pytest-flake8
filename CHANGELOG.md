@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2
+- Added `flake8-cli-arguments` pytest config parameter to pass through pytest cli arguments explicitly
+- Marked `flake8-max-line-length`, `flake8-max-complexity`, `flake8-show-source`, `flake8-statistics`
+    as deprecated (please use flake8 config file or `flake8-cli-arguments` instead)
+
 ## 1.2.1
 - pyproject.toml is no longer implicitly passed through to flake8 (issue #7)
 

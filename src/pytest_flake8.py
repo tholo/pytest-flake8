@@ -37,11 +37,8 @@ PytestFlake8Settings = namedtuple(
         "flake8_config",
         "flake8_exts",
         "flake8_ignore",
-        "flake8_max_len",
-        "flake8_max_complexity",
-        "flake8_show_source",
-        "flake8_statistics",
         "flake8_cache",
+        "flake8_cli_arguments",
     ],
 )
 
@@ -61,20 +58,18 @@ def pytest_addoption(parser):
         help="Disable flake8 integration",
     )
     parser.addini(
+        "flake8-config",
+        default="__PYTEST_INI__",
+        type=None,
+        help="Path to the flake8 config file. (Default is the path to the pytest.ini)",
+    )
+    parser.addini(
         "flake8-ignore",
         type="linelist",
         help="each line specifies a glob pattern and whitespace "
         "separated FLAKE8 errors or warnings which will be ignored, "
         "example: *.py W293",
     )
-    parser.addini("flake8-max-line-length", help="maximum line length")
-    parser.addini("flake8-max-complexity", help="McCabe complexity threshold")
-    parser.addini(
-        "flake8-show-source",
-        type="bool",
-        help="show the source generate each error or warning",
-    )
-    parser.addini("flake8-statistics", type="bool", help="count errors and warnings")
     parser.addini(
         "flake8-extensions",
         type="args",
@@ -82,10 +77,30 @@ def pytest_addoption(parser):
         help="a list of file extensions, for example: .py .pyx",
     )
     parser.addini(
-        "flake8-config",
-        default="__PYTEST_INI__",
-        type=None,
-        help="Path to the flake8 config file. (Default is the path to the pytest.ini)",
+        "flake8-cli-arguments",
+        type="args",
+        default=(),
+        help="Additional CLI parameters to pass to the flake8 when running the test.",
+    )
+    # Deperecated
+    deprecated_msg = (
+        "Deprecated, please use flake8 config file or `flake8-cli-arguments`"
+    )
+    parser.addini(
+        "flake8-max-line-length", help=f"({deprecated_msg}) maximum line length"
+    )
+    parser.addini(
+        "flake8-max-complexity", help=f"({deprecated_msg}) McCabe complexity threshold"
+    )
+    parser.addini(
+        "flake8-show-source",
+        type="bool",
+        help=f"({deprecated_msg}) Show the source generate each error or warning",
+    )
+    parser.addini(
+        "flake8-statistics",
+        type="bool",
+        help=f"({deprecated_msg}) Count errors and warnings",
     )
 
 
@@ -97,15 +112,27 @@ def pytest_configure(config: pytest.Config):
         else:
             mtimes = {}
 
+        # gather legacy CLI arguments
+        cli_args = list(config.getini("flake8-cli-arguments"))
+
+        if config.getini("flake8-max-line-length"):
+            cli_args += ["--max-line-length", config.getini("flake8-max-line-length")]
+        if config.getini("flake8-max-complexity"):
+            cli_args += [
+                "--max-complexity",
+                str(config.getini("flake8-max-complexity")),
+            ]
+        if config.getini("flake8-show-source"):
+            cli_args += ["--show-source"]
+        if config.getini("flake8-statistics"):
+            cli_args += ["--statistics"]
+
         config._flake8_settings = PytestFlake8Settings(
             enabled=True,
             flake8_config=config.getini("flake8-config"),
             flake8_exts=config.getini("flake8-extensions"),
             flake8_ignore=Ignorer(config.getini("flake8-ignore")),
-            flake8_max_len=config.getini("flake8-max-line-length"),
-            flake8_max_complexity=config.getini("flake8-max-complexity"),
-            flake8_show_source=config.getini("flake8-show-source"),
-            flake8_statistics=config.getini("flake8-statistics"),
+            flake8_cli_arguments=tuple(cli_args),
             flake8_cache=PytestFlake8Cache(enabled=True, mtimes=mtimes),
         )
         config.addinivalue_line("markers", "flake8: Tests which run flake8.")
@@ -115,10 +142,7 @@ def pytest_configure(config: pytest.Config):
             flake8_config=None,
             flake8_exts=None,
             flake8_ignore=None,
-            flake8_max_len=None,
-            flake8_max_complexity=None,
-            flake8_show_source=None,
-            flake8_statistics=None,
+            flake8_cli_arguments=(),
             flake8_cache=None,
         )
 
@@ -333,14 +357,9 @@ def check_file(path, test_config: PytestFlake8Settings):
     args = []
     if test_config.flake8_config:
         args += ["--config", os.fspath(test_config.flake8_config)]
-    if test_config.flake8_max_len:
-        args += ["--max-line-length", test_config.flake8_max_len]
-    if test_config.flake8_max_complexity:
-        args += ["--max-complexity", str(test_config.flake8_max_complexity)]
-    if test_config.flake8_show_source:
-        args += ["--show-source"]
-    if test_config.flake8_statistics:
-        args += ["--statistics"]
+    if test_config.flake8_cli_arguments:
+        args.extend(test_config.flake8_cli_arguments)
+
     app = flake8.main.application.Application()
 
     prelim_opts, remaining_args = app.parse_preliminary_options(args)
