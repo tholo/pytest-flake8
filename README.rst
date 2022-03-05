@@ -54,13 +54,15 @@ flake8.
 Configuring FLAKE8 options per project and file
 -----------------------------------------------
 
-Maximum line length can be configured for the whole project
-by adding a ``flake8-max-line-length`` option to your ``setup.cfg``
-or ``tox.ini`` file like this::
+Maximum line length and maximum doc line length can be configured for the
+whole project by adding a ``flake8-max-line-length`` option and
+``flake8-max-doc-length`` to your ``setup.cfg`` or ``tox.ini`` file like
+this::
 
     # content of setup.cfg
     [tool:pytest]
     flake8-max-line-length = 99
+    flake8-max-doc-length = 74
 
 Note that the default will be what naturally comes with `flake8`_
 (which it turn gets its default from `pycodestyle`_).
