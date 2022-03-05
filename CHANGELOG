@@ -2,8 +2,10 @@
 -----
 
 - Drop Python 2 support and dependency on py; from @erikkemperman
+- Drop support for Python 3.5, 3.6
 - Stop testing on Python versions prior to 3.7
 - Add a `flake8-max-doc-length` option; from @rodrigomologni
+- Fix some minor typos; from @kianmeng
 
 1.0.7
 -----
