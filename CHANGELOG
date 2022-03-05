@@ -40,7 +40,7 @@
 -----
 
 - Test on Python 3.7
-- Escape a regex tring with r""
+- Escape a regex string with r""
 
 1.0.1
 -----

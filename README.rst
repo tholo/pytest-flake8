@@ -100,7 +100,7 @@ So if you have a conf.py like this::
     func (  [1,2,3]) #this line lots PEP8 errors :)
 
 then running again with the previous example will show a single
-failure and it will ignore doc/conf.py alltogether::
+failure and it will ignore doc/conf.py altogether::
 
     $ pytest --flake8 -v # verbose shows what is ignored
     ======================================= test session starts ========================================
