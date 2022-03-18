@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name='pytest-flake8',
-    version='1.1.0',
+    version='1.1.1',
     description='pytest plugin to check FLAKE8 requirements',
     long_description=open("README.rst").read(),
     classifiers=[
@@ -15,8 +15,7 @@ setup(
         "License :: OSI Approved :: BSD License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3 :: Only",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
@@ -38,7 +37,7 @@ setup(
         'pytest11': ['flake8 = pytest_flake8'],
     },
     install_requires=[
-        'flake8>=3.5',
-        'pytest>=3.5',
+        'flake8>=4.0',
+        'pytest>=7.0',
     ],
 )
