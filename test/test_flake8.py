@@ -232,3 +232,16 @@ def test_junit_classname(testdir, extra_runtest_args):
         j_text = j_file.read()
     result.assert_outcomes(passed=1)
     assert 'classname=""' not in j_text
+
+
+def test_no_stacktrace(testdir, extra_runtest_args):
+    testdir.makefile(
+        ".py",
+        """
+        def f():
+            pass
+    """,
+    )
+    result = testdir.runpytest("--flake8", *extra_runtest_args)
+    result.stdout.no_fnmatch_line("*pytest_flake8.py:*")
+    result.assert_outcomes(failed=1)

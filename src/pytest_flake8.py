@@ -297,11 +297,6 @@ class Flake8FileCollector(pytest.File):
         (my_key, exp_val) = self.get_cache_item()
         self.flake8_config.flake8_cache.mtimes[my_key] = exp_val
 
-    def repr_failure(self, excinfo):
-        if excinfo.errisinstance(Flake8Error):
-            return excinfo.value.args[0]
-        return super().repr_failure(excinfo)
-
     def collect(self):
         return [
             Flake8Item.from_parent(parent=self, target_path=self.path, name="FLAKE8")
@@ -340,6 +335,11 @@ class Flake8Item(pytest.Item):
             # update mtime only if test passed
             # otherwise failures would not be re-run next time
             self.parent.cache_success()
+
+    def repr_failure(self, excinfo):
+        if excinfo.errisinstance(Flake8Error):
+            return excinfo.value.args[0]
+        return super().repr_failure(excinfo)
 
 
 class Ignorer:
