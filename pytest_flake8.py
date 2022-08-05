@@ -212,23 +212,28 @@ def check_file(path, flake8ignore, maxlength, maxdoclenght, maxcomplexity,
         args += ['--show-source']
     if statistics:
         args += ['--statistics']
+    args += [str(path)]
     app = application.Application()
     prelim_opts, remaining_args = app.parse_preliminary_options(args)
-    config_finder = config.ConfigFileFinder(
-        app.program,
-        prelim_opts.append_config,
-        config_file=prelim_opts.config,
-        ignore_config_files=prelim_opts.isolated,
+    cfg, cfg_dir = config.load_config(
+        config=prelim_opts.config,
+        extra=prelim_opts.append_config,
+        isolated=prelim_opts.isolated,
     )
-    app.find_plugins(config_finder)
+    app.find_plugins(
+        cfg,
+        cfg_dir,
+        enable_extensions=prelim_opts.enable_extensions,
+        require_plugins=prelim_opts.require_plugins,
+    )
     app.register_plugin_options()
-    app.parse_configuration_and_cli(config_finder, remaining_args)
+    app.parse_configuration_and_cli(cfg, cfg_dir, remaining_args)
     if flake8ignore:
         app.options.ignore = flake8ignore
     app.make_formatter()  # fix this
     app.make_guide()
     app.make_file_checker_manager()
-    app.run_checks([str(path)])
+    app.run_checks()
     app.formatter.start()
     app.report_errors()
     app.formatter.stop()
