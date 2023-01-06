@@ -65,7 +65,7 @@ this::
     flake8-max-doc-length = 74
 
 Note that the default will be what naturally comes with `flake8`_
-(which it turn gets its default from `pycodestyle`_).
+(which in turn gets its default from `pycodestyle`_).
 
 You may configure flake8-checking options for your project
 by adding an ``flake8-ignore`` entry to your ``setup.cfg``
