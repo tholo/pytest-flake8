@@ -80,8 +80,10 @@ def pytest_collect_file(file_path, path, parent):
 
 def pytest_unconfigure(config):
     """Flush cache at end of run."""
-    if hasattr(config, "_flake8mtimes"):
-        config.cache.set(HISTKEY, config._flake8mtimes)
+    if hasattr(config, "_flake8mtimes") and config._flake8mtimes:
+        cache = config.cache.get(HISTKEY, {})
+        cache.update(config._flake8mtimes)
+        config.cache.set(HISTKEY, cache)
 
 
 class Flake8Error(Exception):
