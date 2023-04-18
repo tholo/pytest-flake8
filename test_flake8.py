@@ -2,7 +2,6 @@
 """Unit tests for flake8 pytest plugin."""
 from __future__ import print_function
 
-import py
 import pytest
 
 pytest_plugins = "pytester",
@@ -44,8 +43,8 @@ class TestIgnores:
 
             [flake8]
             ignore = E203
-                *.py E300
-                tests/*.py ALL E203  # something
+                E300
+                ALL E203
         """)
         testdir.tmpdir.ensure("xy.py")
         testdir.tmpdir.ensure("tests/hello.py")
@@ -164,13 +163,13 @@ def test_unicode_error(testdir):
     x = testdir.tmpdir.join("x.py")
     import codecs
     f = codecs.open(str(x), "w", encoding="utf8")
-    f.write(py.builtin._totext("""
+    f.write("""
 # coding=utf8
 
 accent_map = {
     u'\\xc0': 'a',  # À -> a  non-ascii comment crashes it
 }
-""", "utf8"))
+""")
     f.close()
     # result = testdir.runpytest("--flake8", x, "-s")
     # result.stdout.fnmatch_lines("*non-ascii comment*")
