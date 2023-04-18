@@ -43,8 +43,8 @@ class TestIgnores:
 
             [flake8]
             ignore = E203
-                *.py E300
-                tests/*.py ALL E203  # something
+                E300
+                ALL E203
         """)
         testdir.tmpdir.ensure("xy.py")
         testdir.tmpdir.ensure("tests/hello.py")
